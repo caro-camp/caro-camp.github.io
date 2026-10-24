@@ -1,0 +1,16 @@
+{
+  "name": "CARO · 캠핑 예약 오픈 알림",
+  "short_name": "CARO",
+  "description": "캠핑장 예약이 열리는 시각을 알려주는 베타",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F3F5F1",
+  "theme_color": "#F3F5F1",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

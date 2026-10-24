@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="캠핑장 예약이 열리는 시각을 알려주는 CARO 베타">
+<meta name="theme-color" content="#F3F5F1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="CARO">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>CARO · 캠핑 예약 오픈 알림</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: misty-dawn board — photo hero with a white search card, sticky tab bar, two-column rows (opening time block | campsite) */
+:root{
+  --bg:#F3F5F1; --surface:#FFFFFF; --sunk:#EBEFEA; --line:#DFE5DF;
+  --ink:#16241E; --soft:#3E4D46; --muted:#62716A;
+  --forest:#1F4D3A; --lantern:#D9661F; --lantern-tint:#FDEFE4;
+  --ok:#1E6B44; --ok-tint:#E4F2E9; --check:#2D5A9C; --check-tint:#E7EEF9; --notice:#5A46A0; --notice-tint:#EEEAF9; --none-tint:#ECEFEC;
+  --scrim:rgba(14,30,24,.62);
+  --body:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+  --clock:'Bebas Neue','Oswald','Arial Narrow',sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1613; --surface:#17211C; --sunk:#1D2923; --line:#27352E;
+  --ink:#E7EEEA; --soft:#C3D0C9; --muted:#97A79F;
+  --forest:#9ED3B5; --lantern:#F29A55; --lantern-tint:#3A2617;
+  --ok:#8FD6AE; --ok-tint:#173226; --check:#9DBDF0; --check-tint:#1A2A40; --notice:#C3B6F5; --notice-tint:#272140; --none-tint:#1F2824;
+  --scrim:rgba(6,12,10,.7); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1613; --surface:#17211C; --sunk:#1D2923; --line:#27352E;
+  --ink:#E7EEEA; --soft:#C3D0C9; --muted:#97A79F;
+  --forest:#9ED3B5; --lantern:#F29A55; --lantern-tint:#3A2617;
+  --ok:#8FD6AE; --ok-tint:#173226; --check:#9DBDF0; --check-tint:#1A2A40; --notice:#C3B6F5; --notice-tint:#272140; --none-tint:#1F2824;
+  --scrim:rgba(6,12,10,.7); color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+a{color:var(--forest)}
+:focus-visible{outline:3px solid var(--lantern);outline-offset:2px}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2{margin:0;text-wrap:balance;font-weight:700;letter-spacing:-.02em}
+button,select,input{font:inherit;color:inherit}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:10px}
+.brand{font-family:"Bebas Neue",sans-serif;font-weight:400;font-size:26px;letter-spacing:.06em;line-height:1;padding-top:3px}
+.brand-sub{font-size:12px;font-weight:500;color:var(--muted);letter-spacing:0}
+@media (max-width:640px){.brand-sub{display:none}}
+.stale{margin:0 0 14px;padding:10px 14px;border-radius:12px;background:var(--lantern-tint);color:#8A3A0B;border:1px solid var(--lantern);font-size:14px;font-weight:600}
+[hidden]{display:none!important}
+.logo{display:flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;font-weight:700;font-size:18px;white-space:nowrap;letter-spacing:-.02em}
+.logo svg{color:var(--lantern)}
+.views{display:flex;gap:2px}
+.views button{border:0;background:transparent;color:var(--muted);height:40px;padding:0 12px;border-radius:10px;cursor:pointer;font-weight:600;font-size:15px;white-space:nowrap;position:relative}
+.views button[aria-pressed="true"]{color:var(--ink)}
+.views button[aria-pressed="true"]::after{content:"";position:absolute;left:12px;right:12px;bottom:2px;height:3px;border-radius:2px;background:var(--lantern)}
+@media (max-width:640px){.topbar{flex-direction:column;align-items:stretch;gap:2px;padding-block:8px 0}.views{justify-content:space-between}.views button{flex:1;padding:0 4px;font-size:14px}.views button[aria-pressed="true"]::after{left:20%;right:20%}}
+
+.hero{position:relative;overflow:hidden;color:#fff}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:68% 50%}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,30,24,.15),var(--scrim) 70%)}
+.hero .wrap{position:relative;z-index:1;padding-block:72px 92px;display:flex;flex-direction:column;gap:10px}
+.hero h1{font-size:clamp(28px,4.6vw,48px);line-height:1.2;max-width:14em;color:#fff}
+.hero p{margin:0;color:#E6EEEA;max-width:36em;font-size:15px}
+
+.searchwrap{position:relative;z-index:2;margin-top:-64px}
+.search{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 12px 32px rgba(16,36,28,.12)}
+.field{display:flex;flex-direction:column;gap:2px;background:var(--surface);padding:10px 14px;min-width:0}
+.field label{font-size:12px;font-weight:600;color:var(--muted)}
+.field input,.field select{border:0;padding:0;background:transparent;font-size:16px;font-weight:600;color:var(--ink);width:100%;min-width:0}
+.field.check{flex-direction:row;align-items:center;gap:8px;min-height:56px}
+.field.check input{width:20px;height:20px;accent-color:var(--lantern);flex:none}
+.field.check label{font-size:14px;color:var(--soft)}
+
+.tabs{display:flex;gap:8px;padding-block:24px 10px;overflow-x:auto;scrollbar-width:none}
+.tab{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--soft);border-radius:999px;height:40px;padding:0 14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:14px}
+.tab b{font-variant-numeric:tabular-nums;color:var(--ink)}
+.tab[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.tab[aria-pressed="true"] b{color:var(--bg)}
+.hint{margin:0 0 14px;color:var(--muted);font-size:14px;max-width:64em}
+
+.board{display:flex;flex-direction:column;gap:10px}
+.row{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:14px;align-items:start;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:16px}
+.tcell{display:flex;flex-direction:column;align-items:flex-start;padding-top:2px}
+.clock{font-family:var(--clock);font-size:34px;line-height:1;color:var(--lantern);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.clock.dim{color:var(--muted)}
+.when{display:block;font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap}
+.name{font-size:16px;font-weight:700;color:var(--ink);overflow-wrap:anywhere;line-height:1.35}
+.meta{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;margin-top:4px}
+.pill{font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.p-wait{background:var(--lantern-tint);color:var(--lantern)} .p-now,.p-likely{background:var(--ok-tint);color:var(--ok)} .p-check{background:var(--check-tint);color:var(--check)} .p-notice{background:var(--notice-tint);color:var(--notice)} .p-none{background:var(--none-tint);color:var(--muted)}
+.soon{color:var(--lantern);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{font-size:12px;padding:2px 8px;border-radius:6px;background:var(--sunk);color:var(--soft);white-space:nowrap}
+.chip.hot{background:var(--lantern-tint);color:var(--lantern);font-weight:700}
+.rank{font-family:var(--clock);font-size:22px;color:var(--lantern);margin-right:8px;font-variant-numeric:tabular-nums}
+.rule{font-size:13px;color:var(--soft);margin-top:6px}
+.acts{display:flex;gap:6px;align-items:center}
+.ib{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--muted);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none}
+.ib[aria-pressed="true"]{background:var(--lantern);border-color:var(--lantern);color:#fff}
+.btn{height:44px;padding:0 16px;border-radius:12px;border:0;background:var(--forest);color:var(--bg);font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;white-space:nowrap}
+.btn.ghost{background:transparent;color:var(--forest);border:1px solid var(--line)}
+.btn.solid{background:var(--lantern);color:#fff}
+.more{display:flex;justify-content:center;padding:18px}
+.empty{padding:40px 16px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:16px}
+.note{color:var(--muted);font-size:13px;padding-block:28px 48px;max-width:62em}
+@media (max-width:640px){
+  .row{grid-template-columns:70px minmax(0,1fr);gap:12px;padding:12px 14px}
+  .clock{font-size:28px}
+  .acts{grid-column:2;justify-content:flex-start;margin-top:-2px}
+}
+
+.overlay{position:fixed;inset:0;z-index:40;background:rgba(6,14,11,.55);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:520px;max-height:100%;overflow:auto;background:var(--surface);color:var(--ink);border-radius:24px 24px 0 0;padding:20px max(20px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px}
+@media (min-width:700px){.overlay{align-items:center}.sheet{border-radius:24px}}
+.sheet .ph{height:150px;border-radius:16px;overflow:hidden}
+.sheet .ph img{width:100%;height:100%;object-fit:cover}
+.count{display:flex;justify-content:center;align-items:baseline;gap:4px;font-family:var(--clock);color:var(--lantern);font-size:64px;line-height:1;font-variant-numeric:tabular-nums}
+.chk{display:flex;gap:12px;align-items:flex-start;min-height:44px;cursor:pointer}
+.chk input{width:22px;height:22px;accent-color:var(--lantern);margin:2px 0 0;flex:none}
+.chk small{display:block;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+</head>
+<body>
+<header class="top">
+  <div class="wrap topbar">
+    <a class="logo" href="#top"><svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4 3 27h26Z" fill="currentColor"/><path d="M16 13 11.5 27h9Z" fill="var(--bg)"/></svg><span class="brand">CARO</span><span class="brand-sub">캠핑 예약 오픈 알림</span></a>
+    <nav class="views" aria-label="보기">
+      <button type="button" id="v-pop" aria-pressed="false">인기</button>
+      <button type="button" id="v-find" aria-pressed="true">날짜로 찾기</button>
+      <button type="button" id="v-board" aria-pressed="false">전광판</button>
+      <button type="button" id="v-mine" aria-pressed="false">관심 <span id="mineCount">0</span></button>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <img src="img/hero.jpg" alt="새벽 산속 캠핑장, 랜턴 불빛이 새어 나오는 텐트">
+  <div class="wrap">
+    <h1 id="heroTitle">예약이 열리는 시각, 먼저 알려드릴게요</h1>
+    <p id="heroSub">가고 싶은 날짜를 고르면 캠핏·그래가·땡큐캠핑·공공 캠핑장 1292곳 중 그날 예약이 언제 열리는지 찾아드려요. 예약 전쟁이 치열한 인기 캠핑장 111곳은 따로 모아뒀어요.</p>
+
+  </div>
+</section>
+<div class="wrap searchwrap">
+    <form class="search" id="search" aria-label="검색 조건">
+      <div class="field"><label for="f-date">체크인</label><input type="date" id="f-date"></div>
+      <div class="field"><label for="f-nights">일정</label><select id="f-nights"><option value="1">1박</option><option value="2">2박</option><option value="3">3박</option></select></div>
+      <div class="field"><label for="f-sido">지역</label><select id="f-sido"></select></div>
+      <div class="field"><label for="f-plat">플랫폼</label><select id="f-plat"><option value="">전체 플랫폼</option><option>캠핏</option><option>그래가</option><option>땡큐캠핑</option><option>숲나들e</option><option>국립공원</option><option>서울시</option><option>자체 예약</option></select></div>
+      <div class="field"><label for="f-q">캠핑장 이름</label><input type="search" id="f-q" placeholder="예: 오양골"></div>
+      <div class="field check"><input type="checkbox" id="f-hot"><label for="f-hot">인기 캠핑장만</label></div>
+      <div class="field check"><input type="checkbox" id="f-mem"><label for="f-mem">그래가 멤버십 있음</label></div>
+    </form>
+</div>
+
+<main class="wrap">
+  <p class="stale" id="stale" role="status" hidden></p>
+  <div id="tabs" class="tabs" role="group" aria-label="예약 상태"></div>
+  <p class="hint" id="hint"></p>
+  <div class="board" id="list" aria-live="polite"></div>
+  <div class="more" id="moreWrap" hidden><button type="button" class="btn" id="more">더 보기</button></div>
+  <p class="note" id="asof"></p>
+</main>
+
+<div class="overlay" id="ready" hidden role="dialog" aria-modal="true" aria-labelledby="r-title">
+  <div class="sheet">
+    <div class="ph"><img src="img/lantern.jpg" alt="켜진 랜턴과 커피, 엎어 둔 휴대폰"></div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+      <div><h2 id="r-title" style="font-size:24px">오픈 직전 준비</h2><div id="r-sub" class="meta"></div></div>
+      <button type="button" class="ib" id="r-close" aria-label="닫기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div style="text-align:center;color:var(--muted);font-size:14px" id="r-label"></div>
+    <div class="count" id="r-count" aria-live="off"></div>
+    <p style="margin:0;text-align:center;font-size:14px;color:var(--muted)" id="r-tip"></p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <a class="btn ghost" id="r-cal" target="_blank" rel="noopener">구글 캘린더에 추가</a>
+      <a class="btn solid" id="r-open" target="_blank" rel="noopener">예약 페이지 열기</a>
+    </div>
+    <p style="margin:0;font-size:12px;color:var(--muted);text-align:center">예약과 결제는 각 플랫폼에서 직접 해요. CARO는 예약을 대신하지 않아요.</p>
+  </div>
+</div>
+
+<script src="pub.js"></script>
+<script src="data.js"></script>
+<script>
+const D = window.CARO_D;
+const PUB = window.CARO_PUB;
+D.camps.push(...PUB.camps);
+const NOW = () => Date.now();
+const pad = n => String(n).padStart(2,'0');
+const ymd = (y,m,d) => y+'-'+pad(m)+'-'+pad(d);
+function parts(s){const [y,m,d]=s.split('-').map(Number);return {y,m,d};}
+function dim(y,m){return new Date(Date.UTC(y,m,0)).getUTCDate();}
+function addDays(s,n){const p=parts(s);const t=new Date(Date.UTC(p.y,p.m-1,p.d+n));return ymd(t.getUTCFullYear(),t.getUTCMonth()+1,t.getUTCDate());}
+function addMonths(s,n){const p=parts(s);let y=p.y,m=p.m+n;while(m>12){m-=12;y++}while(m<1){m+=12;y--}return ymd(y,m,Math.min(p.d,dim(y,m)));}
+function kstMs(s,hhmm){const p=parts(s);const h=hhmm?Number(hhmm.slice(0,2)):0,mi=hhmm?Number(hhmm.slice(2)):0;return Date.UTC(p.y,p.m-1,p.d,h-9,mi);}
+function todayKST(){const t=new Date(NOW()+9*3600e3);return ymd(t.getUTCFullYear(),t.getUTCMonth()+1,t.getUTCDate());}
+const DOW=['일','월','화','수','목','금','토'];
+function shortDay(s){const p=parts(s);const w=new Date(Date.UTC(p.y,p.m-1,p.d)).getUTCDay();return p.m+'/'+p.d+' ('+DOW[w]+')';}
+function fmtDay(s){const p=parts(s);const w=new Date(Date.UTC(p.y,p.m-1,p.d)).getUTCDay();return p.m+'월 '+p.d+'일 ('+DOW[w]+')';}
+function fmtTime(hhmm){if(!hhmm)return '시각 미표기';const h=Number(hhmm.slice(0,2)),m=hhmm.slice(2);if(h===0&&m==='00')return '자정';if(h===12&&m==='00')return '정오';return (h<12?'오전 ':'오후 ')+(h%12===0?12:h%12)+':'+m;}
+function left(ms){let s=Math.max(0,Math.round((ms-NOW())/1000));const d=Math.floor(s/86400);s%=86400;const h=Math.floor(s/3600);const m=Math.floor((s%3600)/60);if(d>0)return d+'일 '+h+'시간 남음';if(h>0)return h+'시간 '+m+'분 남음';return m+'분 남음';}
+
+const EV = {}; D.events.forEach(e=>{(EV[e[0]]=EV[e[0]]||[]).push(e)});
+Object.values(EV).forEach(a=>a.sort((x,y)=>kstMs(x[1],x[2])-kstMs(y[1],y[2])));
+
+function lastDow(y,m,w){const d=dim(y,m);const t=new Date(Date.UTC(y,m-1,d)).getUTCDay();return ymd(y,m,d-((t-w+7)%7));}
+function shiftMonth(y,m,n){m+=n;while(m>12){m-=12;y++}while(m<1){m+=12;y--}return [y,m];}
+function ruleOpen(rule,y,m){if(rule.t==='W')return null;if(rule.t==='M')return ymd(y,m,Math.min(rule.d,dim(y,m)));return lastDow(y,m,rule.w);}
+function ruleCover(rule,last){if(rule.t==='W'){const k=Math.floor((Date.parse(last)-Date.parse(rule.fr))/6048e5);return addDays(rule.od,7*k);}const p=parts(last);const [y,m]=shiftMonth(p.y,p.m,-rule.a);return ruleOpen(rule,y,m);}
+function ruleNext(rule){const t=todayKST();const p=parts(t);for(let k=0;k<3;k++){if(rule.t==='W')return null;const [y,m]=shiftMonth(p.y,p.m,k);const d=ruleOpen(rule,y,m);if(kstMs(d,rule.tm)>NOW())return d;}return null;}
+function ruleText(c){const x=c[10]||{};if(c[5]==='f')return '평일 매주 수 9시 6주 선착순 · 주말 매월 4~9일 추첨';if(c[5]==='p')return '2개월 단위 추첨(짝수 달 1일 10시~) · 빈자리 선착순';if(x.rule)return x.rule.txt;if(c[5]==='r')return '매일 '+Number(c[6].slice(0,2))+'시 · '+c[7]+'개월 앞 날짜가 열림';if(c[5]==='m')return '매달 1일 · 한 달 치씩 오픈';
+  const e=(EV[D.camps.indexOf(c)]||[]).find(x=>kstMs(x[1],x[2])>NOW());if(e)return '다음 오픈 '+fmtDay(e[1])+' '+fmtTime(e[2]);if(x.n)return '공지: '+x.n;return '오픈 규칙 미공개';}
+function dowOf(s){const p=parts(s);return new Date(Date.UTC(p.y,p.m-1,p.d)).getUTCDay();}
+function isHol(s){return PUB.hol.indexOf(s)>=0;}
+const mdS=s=>Number(s.slice(5,7))+'/'+Number(s.slice(8));
+function evalForest(checkin,nights){
+  const ns=[];for(let i=0;i<nights;i++)ns.push(addDays(checkin,i));
+  if(ns.some(d=>{const md=d.slice(5);return md>='07-15'&&md<='08-24';}))return {st:'notice',text:'성수기(7/15~8/24) 추첨 · 매년 5월 말~6월 숲나들e 공지 확인'};
+  if(ns.some(d=>dowOf(d)===2&&!isHol(d)&&!isHol(addDays(d,1))))return {st:'none',text:'화요일은 국립자연휴양림 휴무라 숙박이 안 돼요'};
+  const wk=ns.filter(d=>{const w=dowOf(d);return w===5||w===6||isHol(addDays(d,1));});
+  if(wk.length){const p=parts(wk[0]);const [y,m]=shiftMonth(p.y,p.m,-1);const n=NOW();
+    const a=kstMs(ymd(y,m,4),'0900'),cl=kstMs(ymd(y,m,9),'1800'),lf=kstMs(ymd(y,m,15),'0900');
+    if(n<a)return {st:'wait',ms:a,time:'0900',day:ymd(y,m,4),text:'주말 추첨 신청 '+m+'/4 9시~'+m+'/9 18시 · 발표 '+m+'/10 16시'};
+    if(n<cl)return {st:'now',sure:true,text:'주말 추첨 신청 중 · '+m+'/9 18시 마감 · 발표 '+m+'/10 16시'};
+    if(n<lf)return {st:'wait',ms:lf,time:'0900',day:ymd(y,m,15),text:'추첨 마감 · 잔여분 선착순 '+m+'/15 9시'};
+    return {st:'likely',ms:lf,time:'0900',day:ymd(y,m,15),text:'주말 잔여분 선착순 진행 중 · 남은 자리 확인'};}
+  let W=addDays(ns[ns.length-1],-40);while(dowOf(W)!==3)W=addDays(W,1);const ms=kstMs(W,'0900');
+  if(ms<=NOW())return {st:'likely',ms,time:'0900',day:W,text:'평일 선착순 · 이미 열림, 남은 자리 확인'};
+  return {st:'wait',ms,time:'0900',day:W,text:'평일 선착순 · 매주 수요일 9시에 6주 뒤 월요일까지 열림'};
+}
+function parkRound(d){
+  for(const r of PUB.knps.rounds)if(d>=r.from&&d<=r.to)return r;
+  const p=parts(d);const sm=p.m%2===1?p.m:p.m-1;const [ey,em]=shiftMonth(p.y,sm,1);const [ay,am]=shiftMonth(p.y,sm,-1);
+  return {from:ymd(p.y,sm,1),to:ymd(ey,em,dim(ey,em)),apply:[ymd(ay,am,1),'1000'],close:[ymd(ay,am,6),'1000'],ann:[ymd(ay,am,6),'1600'],vac:[ymd(ay,am,8),'1000'],est:1};
+}
+function evalPark(checkin){
+  const r=parkRound(checkin);const n=NOW();const a=kstMs(r.apply[0],r.apply[1]),cl=kstMs(r.close[0],r.close[1]),v=kstMs(r.vac[0],r.vac[1]);
+  const est=r.est?' · 지난 회차 기준 예상':'';const wn=['12','01','02','03'].indexOf(checkin.slice(5,7))>=0?' · 동절기 일부 야영장 미운영':'';
+  if(n<a)return {st:'wait',ms:a,time:r.apply[1],day:r.apply[0],est:!!r.est,text:'2개월 단위 추첨 신청 '+mdS(r.apply[0])+'~'+mdS(r.close[0])+' 10시'+est+wn};
+  if(n<cl)return {st:'now',sure:true,text:'추첨 신청 중 · '+mdS(r.close[0])+' 10시 마감'+wn};
+  if(n<v)return {st:'wait',ms:v,time:r.vac[1],day:r.vac[0],est:!!r.est,text:'추첨 마감 · 빈자리 선착순 '+mdS(r.vac[0])+' 10시'+est+wn};
+  return {st:'likely',ms:v,time:r.vac[1],day:r.vac[0],text:'빈자리 선착순 진행 중 · 남은 자리 확인'+wn};
+}
+function evaluate(ci,checkin,nights,mem){
+  if(D.camps[ci][5]==='f')return evalForest(checkin,nights);
+  if(D.camps[ci][5]==='p')return evalPark(checkin);
+  return evaluate0(ci,checkin,nights,mem);
+}
+function evaluate0(ci,checkin,nights,mem){
+  const c=D.camps[ci];const last=addDays(checkin,nights-1);
+  const [name,sido,sg,plat,url,mode,ot,roll,memM,cur]=c;const x=c[10]||{};
+  if(mode==='d'){
+    const days=x.rule.days;const availEnd=addDays(todayKST(),days);
+    if(last<=availEnd) return {st:'now',sure:true,text:availEnd.slice(5).replace('-','/')+'까지 열려 있음'};
+    const open=addDays(last,-days);
+    return {st:'wait',ms:kstMs(open,ot),time:ot,day:open,est:true,text:'매일 하루씩 · 약 '+days+'일 전 오픈 · 예상'};
+  }
+  if(mode==='o'||mode==='n'){
+    if(cur&&last<=cur) return {st:'now',sure:true,text:cur.slice(5).replace('-','/')+'까지 열려 있음'};
+    const e=(EV[ci]||[]).find(v=>v[3]>=last&&(!v[4]||v[4]<=last));
+    if(!e&&x.rule){const d=ruleCover(x.rule,last);const ms=kstMs(d,x.rule.tm);
+      if(ms<=NOW()) return {st:'likely',ms,time:x.rule.tm,day:d,text:x.rule.txt+' · 규칙상 이미 열림, 남은 자리 확인'};
+      return {st:'wait',ms,time:x.rule.tm,day:d,est:true,text:x.rule.txt+' · 규칙으로 계산'};}
+    if(!e){if(x.n)return {st:'notice',text:'공지 확인: '+x.n};return {st:'none',text:'다음 오픈 공지 없음'};}
+  }
+  if(mode==='r'){
+    const months=roll+(mem&&memM?memM:0);
+    const availEnd=addMonths(todayKST(),months);
+    if(last<=availEnd) return {st:'now',sure:true,text:availEnd.slice(5).replace('-','/')+'까지 열려 있음'};
+    const open=addMonths(last,-months);
+    return {st:'wait',ms:kstMs(open,ot),time:ot,day:open,est:true,text:'매일 롤링 '+months+'개월 · 예상'};
+  }
+  if(cur&&last<=cur) return {st:'now',sure:true,text:cur.slice(5).replace('-','/')+'까지 열려 있음'};
+  const e=(EV[ci]||[]).find(x=>x[3]>=last&&(!x[4]||x[4]<=last));
+  if(!e) return {st:'none',text:'다음 오픈 공지 없음'};
+  const ms=kstMs(e[1],e[2]);const range=e[3].slice(5).replace('-','/')+'까지 오픈';
+  if(ms<=NOW()) return {st:'likely',ms,time:e[2],day:e[1],text:'이미 열린 범위 · 남은 자리 확인'};
+  if(cur||e[4]) return {st:'wait',ms,time:e[2],day:e[1],text:(e[4]?e[4].slice(5).replace('-','/')+'~':'')+range};
+  const E=parts(e[3]);
+  if(E.d===dim(E.y,E.m)&&last<ymd(E.y,E.m,1)) return {st:'likely',ms,time:e[2],day:e[1],text:'이전 오픈에서 열렸을 가능성 높음'};
+  return {st:'check',ms,time:e[2],day:e[1],text:range+' · 이미 열렸을 수도 있음'};
+}
+
+const ST={wait:['오픈 대기','p-wait'],check:['확인 필요','p-check'],now:['지금 예약 가능','p-now'],likely:['열림 추정','p-likely'],none:['오픈 미공개','p-none'],notice:['공지 확인','p-notice']};
+const TABS=[['wait','오픈 대기','아직 안 열린 곳이에요. 종을 누르면 관심에 담기고, 준비 화면에서 구글 캘린더 알림을 넣을 수 있어요.'],
+ ['open','지금 예약 가능','이미 열린 곳이에요. "열림 추정"은 지난 오픈 규칙으로 계산한 값이라 남은 자리는 예약 페이지에서 확인하세요.'],
+ ['check','확인 필요','캠핏은 지금 어디까지 열렸는지 공개하지 않아요. 다음 오픈이 내 날짜를 포함하지만 이미 열렸을 수도 있어요.'],
+ ['none','공지·미공개','오픈 날짜를 캠핑장 공지로만 알리는 곳이에요. 인기 캠핑장에 많아요. 공지 제목을 보여드리니 예약 페이지에서 확인하세요.']];
+
+const K=ci=>D.camps[ci][4]+'#'+D.camps[ci][0];let fav=new Set();try{fav=new Set(JSON.parse(localStorage.getItem('caro_fav')||'[]'))}catch(e){}
+function saveFav(){try{localStorage.setItem('caro_fav',JSON.stringify([...fav]))}catch(e){};document.getElementById('mineCount').textContent=fav.size;}
+let view='find',tab='wait',limit=40;
+const $=id=>document.getElementById(id);
+
+function initForm(){
+  const sidos=[...new Set(D.camps.map(c=>c[1]))];
+  const order=['경기','강원','충북','충남','경북','경남','전북','전남','인천','제주','울산','대구'];
+  sidos.sort((a,b)=>(order.indexOf(a)+99)%99-(order.indexOf(b)+99)%99);
+  $('f-sido').innerHTML='<option value="">전국</option>'+sidos.map(s=>'<option>'+s+'</option>').join('');
+  let saved={};try{saved=JSON.parse(localStorage.getItem('ob_form')||'{}')}catch(e){}
+  const def=addDays(todayKST(),56);let d=def;const p=parts(def);const w=new Date(Date.UTC(p.y,p.m-1,p.d)).getUTCDay();d=addDays(def,(6-w+7)%7);
+  $('f-date').value=saved.date&&saved.date>todayKST()?saved.date:d;
+  ['nights','sido','plat'].forEach(k=>{if(saved[k]!=null)$('f-'+k).value=saved[k]});
+  $('f-mem').checked=!!saved.mem;
+}
+function form(){return {date:$('f-date').value||todayKST(),nights:Number($('f-nights').value),sido:$('f-sido').value,plat:$('f-plat').value,q:$('f-q').value.trim(),mem:$('f-mem').checked,hot:$('f-hot').checked};}
+
+function flapHTML(hhmm,dim){return '<span class="clock'+(dim?' dim':'')+'" aria-hidden="true">'+(hhmm?hhmm.slice(0,2)+':'+hhmm.slice(2):'--:--')+'</span>';}
+const BELL='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>';
+const GO='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>';
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+function popChips(c){const x=c[10]||{};let h='';if(x.pub)h+='<span class="chip">공식 예약 규칙</span>';if(x.s>=65)h+='<span class="chip hot">예약 전쟁 '+x.s+'</span>';else if(x.s>=45)h+='<span class="chip hot">인기 '+x.s+'</span>';
+  if(x.st)h+='<span class="chip">별점 '+x.st+'</span>';if(x.r)h+='<span class="chip">리뷰 '+x.r.toLocaleString('ko-KR')+'</span>';
+  if(x.b)x.b.split(';').filter(Boolean).slice(0,2).forEach(b=>{h+='<span class="chip">'+esc(b.replace(/TOP/,' TOP'))+'</span>'});return h;}
+function rowHTML(ci,r,rank){
+  const c=D.camps[ci];const on=fav.has(K(ci));
+  const hasTime=r.ms!=null;const soon=hasTime&&r.ms>NOW()&&r.ms-NOW()<864e5;
+  const t=hasTime?flapHTML(r.time,r.st!=='wait')+'<span class="when">'+shortDay(r.day)+'</span>':flapHTML(null,true)+'<span class="when">'+(r.st==='now'?'바로 예약':'일정 없음')+'</span>';
+  const timeText=hasTime?fmtDay(r.day)+' '+fmtTime(r.time):'';
+  return '<div class="row"><div class="tcell" aria-label="'+esc(timeText)+'">'+t+'</div>'+
+   '<div class="ncell"><div class="name">'+(rank?'<span class="rank">'+rank+'</span>':'')+esc(c[0])+'</div><div class="meta"><span class="pill '+ST[r.st][1]+'">'+ST[r.st][0]+'</span><span>'+esc(c[1]+' '+c[2])+' · '+c[3]+'</span><span>'+esc(r.text)+'</span>'+
+   (r.st==='wait'&&hasTime?'<span class="'+(soon?'soon':'')+'">'+left(r.ms)+'</span>':'')+'</div>'+
+   ((c[10]||{}).s||(c[10]||{}).pub?'<div class="chips">'+popChips(c)+'</div>':'')+
+   (rank?'<div class="rule">오픈 방식: '+esc(ruleText(c))+'</div>':'')+'</div>'+
+   '<div class="acts"><button type="button" class="ib" data-fav="'+ci+'" aria-pressed="'+on+'" aria-label="'+esc(c[0])+(on?' 관심 해제':' 관심에 담기')+'">'+BELL+'</button>'+
+   (r.st==='wait'||r.st==='check'?'<button type="button" class="btn ghost" data-ready="'+ci+'">준비 화면</button>':'<a class="ib" href="'+c[4]+'" target="_blank" rel="noopener" aria-label="'+esc(c[0])+' 예약 페이지 열기">'+GO+'</a>')+'</div></div>';
+}
+
+function compute(){
+  const f=form();try{localStorage.setItem('ob_form',JSON.stringify(f))}catch(e){}
+  const out=[];
+  D.camps.forEach((c,ci)=>{
+    if(f.sido&&c[1]!==f.sido)return;if(f.plat&&c[3]!==f.plat)return;if(f.q&&c[0].indexOf(f.q)<0)return;if(f.hot&&!((c[10]||{}).s>=45))return;
+    out.push([ci,evaluate(ci,f.date,f.nights,f.mem)]);
+  });
+  return {f,out};
+}
+
+function render(){
+  const {f,out}=compute();
+  $('mineCount').textContent=fav.size;
+  if(view==='find'){
+    const groups={wait:[],open:[],check:[],none:[]};
+    out.forEach(([ci,r])=>{const g=r.st==='now'||r.st==='likely'?'open':r.st==='notice'?'none':r.st;groups[g].push([ci,r])});
+    const sc=ci=>(D.camps[ci][10]||{}).s||0;
+    groups.wait.sort((a,b)=>a[1].ms-b[1].ms);groups.check.sort((a,b)=>a[1].ms-b[1].ms);
+    groups.open.sort((a,b)=>(a[1].st==='now'?0:1)-(b[1].st==='now'?0:1)||sc(b[0])-sc(a[0]));
+    groups.none.sort((a,b)=>sc(b[0])-sc(a[0]));
+    $('tabs').innerHTML=TABS.map(([id,label])=>'<button type="button" class="tab" data-tab="'+id+'" aria-pressed="'+(tab===id)+'"><b>'+groups[id].length+'</b><span>'+label+'</span></button>').join('');
+    $('tabs').hidden=false;
+    $('hint').textContent=fmtDay(f.date)+' 체크인 · '+f.nights+'박 기준. '+TABS.find(t=>t[0]===tab)[2];
+    list(groups[tab]);
+  } else if(view==='board'){
+    $('tabs').hidden=true;
+    const now=NOW();const rows=D.events.filter(e=>kstMs(e[1],e[2])>now&&D.camps[e[0]][5]==='o'&&(!f.sido||D.camps[e[0]][1]===f.sido)&&(!f.plat||D.camps[e[0]][3]===f.plat))
+      .sort((a,b)=>kstMs(a[1],a[2])-kstMs(b[1],b[2]))
+      .map(e=>[e[0],{st:'wait',ms:kstMs(e[1],e[2]),time:e[2],day:e[1],text:e[3].slice(5).replace('-','/')+'까지 오픈'}]);
+    const has=new Set(rows.map(r=>r[0]+'|'+r[1].day));
+    D.camps.forEach((c,ci)=>{const x=c[10]||{};if(!x.rule||(x.rule.t!=='M'&&x.rule.t!=='L'))return;if(f.sido&&c[1]!==f.sido)return;if(f.plat&&c[3]!==f.plat)return;
+      const d=ruleNext(x.rule);if(!d||has.has(ci+'|'+d))return;rows.push([ci,{st:'wait',ms:kstMs(d,x.rule.tm),time:x.rule.tm,day:d,text:x.rule.txt}]);});
+    rows.sort((a,b)=>a[1].ms-b[1].ms);
+    $('hint').textContent='곧 예약이 열리는 순서예요. 그래가는 거의 매일 오전 9시에 하루씩 열려서 전광판에는 캠핏·땡큐캠핑 일정과 월간 규칙이 있는 곳만 보여요. 국립휴양림·국립공원은 날짜로 찾기에서 확인하세요.';
+    list(rows);
+  } else if(view==='pop'){
+    $('tabs').hidden=true;
+    const rows=D.camps.map((c,ci)=>[ci,c]).filter(([ci,c])=>(c[10]||{}).s>=45&&(!f.sido||c[1]===f.sido)&&(!f.plat||c[3]===f.plat)&&(!f.q||c[0].indexOf(f.q)>=0))
+      .sort((a,b)=>b[1][10].s-a[1][10].s).map(([ci])=>[ci,evaluate(ci,f.date,f.nights,f.mem)]);
+    $('hint').textContent='예약이 어려운 순서예요. 인기 점수는 리뷰 수, 별점(그래가), 캠핏 TOP 배지와 조회 순위로 계산해요. 상태는 '+fmtDay(f.date)+' '+f.nights+'박 기준이에요.';
+    list(rows,'조건에 맞는 인기 캠핑장이 없어요. 지역이나 플랫폼을 넓혀 보세요.',true);
+  } else {
+    $('tabs').hidden=true;
+    const rows=D.camps.map((c,ci)=>ci).filter(ci=>fav.has(K(ci))).map(ci=>[ci,evaluate(ci,f.date,f.nights,f.mem)]);
+    $('hint').textContent=fav.size?fmtDay(f.date)+' 체크인 기준으로 관심 캠핑장 상태를 보여드려요. 관심 목록은 이 기기에만 저장돼요.':'';
+    list(rows,'아직 관심 캠핑장이 없어요. 날짜로 찾기나 전광판에서 종을 눌러 담아 보세요.');
+  }
+}
+let cur=[];
+let ranked=false;
+function list(rows,emptyText,rk){
+  cur=rows;ranked=!!rk;
+  if(!rows.length){$('list').innerHTML='<div class="empty">'+esc(emptyText||'조건에 맞는 캠핑장이 없어요. 지역이나 플랫폼을 넓혀 보세요.')+'</div>';$('moreWrap').hidden=true;return;}
+  $('list').innerHTML=rows.slice(0,limit).map(([ci,r],i)=>rowHTML(ci,r,ranked?i+1:0)).join('');
+  $('moreWrap').hidden=rows.length<=limit;$('more').textContent='더 보기 ('+(rows.length-limit)+'곳 남음)';
+}
+
+function setView(v){view=v;limit=40;['pop','find','board','mine'].forEach(x=>$('v-'+x).setAttribute('aria-pressed',x===v));render();}
+$('v-pop').onclick=()=>setView('pop');$('v-find').onclick=()=>setView('find');$('v-board').onclick=()=>setView('board');$('v-mine').onclick=()=>setView('mine');
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;tab=b.dataset.tab;limit=40;render();});
+$('search').addEventListener('input',()=>{limit=40;render();});
+$('search').addEventListener('submit',e=>e.preventDefault());
+$('more').onclick=()=>{limit+=40;list(cur,null,ranked);};
+$('list').addEventListener('click',e=>{
+  const f=e.target.closest('[data-fav]');if(f){const ci=Number(f.dataset.fav);fav.has(K(ci))?fav.delete(K(ci)):fav.add(K(ci));saveFav();
+    const on=fav.has(K(ci));f.setAttribute('aria-pressed',on);f.setAttribute('aria-label',D.camps[ci][0]+(on?' 관심 해제':' 관심에 담기'));if(view==='mine')render();return;}
+  const r=e.target.closest('[data-ready]');if(r)openReady(Number(r.dataset.ready));
+});
+
+let timer=null,lastFocus=null;
+function gcal(c,ms){const z=t=>new Date(t).toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
+  const p=new URLSearchParams({action:'TEMPLATE',text:'[준비] '+c[0]+' 예약 오픈',dates:z(ms-6e5)+'/'+z(ms),details:'10분 뒤 예약이 열려요. 로그인·인원·결제수단을 미리 확인하세요.\n예약 페이지: '+c[4]});
+  return 'https://calendar.google.com/calendar/render?'+p.toString();}
+function openReady(ci){
+  const f=form();const c=D.camps[ci];const r=evaluate(ci,f.date,f.nights,f.mem);
+  lastFocus=document.activeElement;
+  $('r-title').textContent=c[0];
+  $('r-sub').innerHTML='<span>'+esc(c[1]+' '+c[2])+' · '+c[3]+'</span><span>'+fmtDay(f.date)+' '+f.nights+'박</span>';
+  $('r-label').textContent=r.ms?fmtDay(r.day)+' '+fmtTime(r.time)+' 오픈까지':'';
+  $('r-open').href=c[4];$('r-open').textContent=c[3]+'에서 열기';
+  $('r-cal').href=r.ms?gcal(c,r.ms):c[4];
+  $('r-tip').textContent='오픈 전에 '+c[3]+' 로그인만 해 두세요.';
+  const tick=()=>{if(!r.ms){$('r-count').textContent='';return;}let s=Math.max(0,Math.round((r.ms-NOW())/1000));const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),sec=s%60;
+    $('r-count').textContent=d>0?d+'일 '+h+'시간':pad(h>0?h:m)+':'+pad(h>0?m:sec);$('r-count').setAttribute('aria-label',d>0?d+'일 '+h+'시간 남음':(h>0?h+'시간 '+m+'분 남음':m+'분 '+sec+'초 남음'));};
+  tick();clearInterval(timer);timer=setInterval(tick,1000);
+  $('ready').hidden=false;$('r-close').focus();
+}
+function closeReady(){$('ready').hidden=true;clearInterval(timer);if(lastFocus)lastFocus.focus();}
+$('r-close').onclick=closeReady;
+$('ready').addEventListener('click',e=>{if(e.target===$('ready'))closeReady();});
+$('ready').addEventListener('keydown',e=>{if(e.key==='Escape')closeReady();});
+
+(()=>{const M=D.meta||{};const a=new Date(Date.parse(D.asOf)+9*3600e3);const ds=a.getUTCFullYear()+'년 '+(a.getUTCMonth()+1)+'월 '+a.getUTCDate()+'일 '+pad(a.getUTCHours())+':'+pad(a.getUTCMinutes());$('asof').textContent='데이터 기준: '+ds+' 수집 (캠핏 30일 내 오픈 일정 '+(M.sched||412)+'곳 + 리뷰·조회 상위 인기 캠핑장 '+(M.pop||130)+'곳, 그래가 전체 '+(M.graega||86)+'곳). 매일 새벽 자동으로 새로 모아요. 땡큐캠핑 예약 오픈 캘린더 '+(M.thankq||0)+'곳도 매일 함께 모아요. 국립자연휴양림 '+PUB.camps.filter(c=>c[5]==='f').length+'곳(숲나들e)·국립공원 야영장 '+PUB.camps.filter(c=>c[5]==='p').length+'곳·서울시 공공 캠핑장 '+PUB.camps.filter(c=>c[3]==='서울시').length+'곳은 공식 예약 규칙(숲나들e 이용안내, 국립공원 예약시스템 추첨제 안내, 서울시 캠핑장 안내, '+PUB.asOf+' 확인)으로 계산하고, 달밭리트릿·독차지처럼 자체 사이트로 받는 곳은 공지·예약 달력 기준 추정이에요. 공휴일은 2027년까지 반영했어요. 롤링·월간 규칙 계산과 "열림 추정"은 예상값이에요. 재방문율은 두 플랫폼 모두 공개하지 않아 점수에 아직 넣지 못했어요. 예약과 결제는 각 플랫폼에서 직접 해요.';const age=(NOW()-Date.parse(D.asOf))/86400e3;if(age>2){const s=$('stale');s.hidden=false;s.textContent='⚠ 데이터가 '+Math.floor(age)+'일 전 기준이에요. 자동 갱신이 멈췄을 수 있으니, 오픈 시각은 예약 페이지 공지로 한 번 더 확인하세요.';}})();
+initForm();render();
+setInterval(()=>{if(view!=='mine'&&$('ready').hidden)render();},60000);
+</script>
+<script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}</script>
+</body>
+</html>
