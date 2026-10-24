@@ -26,6 +26,11 @@ if D:
     except Exception as e: need(False, f"asOf 오류: {e}")
     m = D.get("meta", {})
     need(len(m.get("popReview", [])) >= 50, "인기 캠핑장 목록 50곳 이상")
+if (R / "attr.js").exists():
+    A = load("attr.js", "CARO_ATTR")
+    if A is not None:
+        need(len(A) >= 200 and all(isinstance(v, str) and set(v) <= set("pPk") for v in A.values()), f"반려견·노키즈 정보 {len(A)}곳")
+    need('src="attr.js"' in (R / "index.html").read_text(encoding="utf-8"), "반려견 정보 파일 연결")
 if P:
     need(len(P.get("camps", [])) >= 80, f"공공 캠핑장 {len(P.get('camps', []))} (최소 80)")
 

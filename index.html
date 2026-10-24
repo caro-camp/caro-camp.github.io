@@ -89,8 +89,11 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 .board{display:flex;flex-direction:column;gap:10px}
 .row{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:14px;align-items:start;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:16px}
+.row.nt{grid-template-columns:minmax(0,1fr) auto}
+.alts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.alt{font-size:12px;font-weight:700;padding:4px 10px;border-radius:8px;border:1px solid var(--line);color:var(--forest);text-decoration:none;white-space:nowrap}
 .tcell{display:flex;flex-direction:column;align-items:flex-start;padding-top:2px}
-.clock{font-family:var(--clock);font-size:34px;line-height:1;color:var(--lantern);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.clock{white-space:nowrap;font-family:var(--clock);font-size:34px;line-height:1;color:var(--lantern);letter-spacing:.02em;font-variant-numeric:tabular-nums}
 .clock.dim{color:var(--muted)}
 .when{display:block;font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap}
 .name{font-size:16px;font-weight:700;color:var(--ink);overflow-wrap:anywhere;line-height:1.35}
@@ -116,6 +119,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   .row{grid-template-columns:70px minmax(0,1fr);gap:12px;padding:12px 14px}
   .clock{font-size:28px}
   .acts{grid-column:2;justify-content:flex-start;margin-top:-2px}
+  .row.nt{grid-template-columns:minmax(0,1fr) auto}
+  .row.nt .acts{grid-column:auto;margin-top:0}
 }
 
 .overlay{position:fixed;inset:0;z-index:40;background:rgba(6,14,11,.55);display:flex;align-items:flex-end;justify-content:center}
@@ -127,6 +132,24 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .chk{display:flex;gap:12px;align-items:flex-start;min-height:44px;cursor:pointer}
 .chk input{width:22px;height:22px;accent-color:var(--lantern);margin:2px 0 0;flex:none}
 .chk small{display:block;color:var(--muted)}
+.clock .d{display:inline-block;transform-origin:50% 55%;backface-visibility:hidden}
+.anim .clock .d{animation:flap .5s cubic-bezier(.3,1.4,.5,1) both;animation-delay:calc(var(--i,0)*28ms + var(--r,0)*35ms)}
+@keyframes flap{0%{transform:rotateX(-95deg);opacity:0}60%{opacity:1}100%{transform:none}}
+.anim .row{animation:rise .38s ease-out both;animation-delay:calc(var(--r,0)*35ms)}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.ib.ring svg{animation:ring .6s ease-in-out;transform-origin:50% 10%}
+@keyframes ring{0%,100%{transform:none}20%{transform:rotate(16deg)}40%{transform:rotate(-13deg)}60%{transform:rotate(8deg)}80%{transform:rotate(-4deg)}}
+.overlay:not([hidden]){animation:fade .25s ease-out}
+.overlay:not([hidden]) .sheet{animation:up .34s cubic-bezier(.2,.9,.3,1)}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+.count .d{display:inline-block}
+.count .d.tick{animation:tick .32s ease-out}
+@keyframes tick{from{transform:translateY(-35%);opacity:.2}to{transform:none;opacity:1}}
+.count.urgent{animation:glow 1s ease-in-out infinite}
+@keyframes glow{50%{opacity:.55}}
+.chip.pet{background:var(--ok-tint);color:var(--ok);font-weight:700}
+.chip.nk{background:var(--notice-tint);color:var(--notice);font-weight:700}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
@@ -159,6 +182,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <div class="field"><label for="f-sido">지역</label><select id="f-sido"></select></div>
       <div class="field"><label for="f-plat">플랫폼</label><select id="f-plat"><option value="">전체 플랫폼</option><option>캠핏</option><option>그래가</option><option>땡큐캠핑</option><option>숲나들e</option><option>국립공원</option><option>서울시</option><option>자체 예약</option></select></div>
       <div class="field"><label for="f-q">캠핑장 이름</label><input type="search" id="f-q" placeholder="예: 오양골"></div>
+      <div class="field"><label for="f-with">동반 조건</label><select id="f-with"><option value="">상관없음</option><option value="pet">🐶 반려견 동반 가능</option><option value="nk">노키즈</option><option value="kid">아이 동반 (노키즈 제외)</option></select></div>
       <div class="field check"><input type="checkbox" id="f-hot"><label for="f-hot">인기 캠핑장만</label></div>
       <div class="field check"><input type="checkbox" id="f-mem"><label for="f-mem">그래가 멤버십 있음</label></div>
     </form>
@@ -192,10 +216,12 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 </div>
 
 <script src="pub.js"></script>
+<script src="attr.js"></script>
 <script src="data.js"></script>
 <script>
 const D = window.CARO_D;
 const PUB = window.CARO_PUB;
+const ATTR = window.CARO_ATTR||{};
 D.camps.push(...PUB.camps);
 const NOW = () => Date.now();
 const pad = n => String(n).padStart(2,'0');
@@ -293,12 +319,23 @@ function evaluate0(ci,checkin,nights,mem){
   return {st:'check',ms,time:e[2],day:e[1],text:range+' · 이미 열렸을 수도 있음'};
 }
 
-const ST={wait:['오픈 대기','p-wait'],check:['확인 필요','p-check'],now:['지금 예약 가능','p-now'],likely:['열림 추정','p-likely'],none:['오픈 미공개','p-none'],notice:['공지 확인','p-notice']};
+const ST={wait:['오픈 대기','p-wait'],check:['확인 필요','p-check'],now:['예약 열림','p-now'],likely:['열림 추정','p-likely'],none:['오픈 미공개','p-none'],notice:['공지 확인','p-notice']};
 const TABS=[['wait','오픈 대기','아직 안 열린 곳이에요. 종을 누르면 관심에 담기고, 준비 화면에서 구글 캘린더 알림을 넣을 수 있어요.'],
- ['open','지금 예약 가능','이미 열린 곳이에요. "열림 추정"은 지난 오픈 규칙으로 계산한 값이라 남은 자리는 예약 페이지에서 확인하세요.'],
+ ['open','예약 열림','내 날짜의 예약이 이미 열린 곳이에요. 날짜가 열렸다는 뜻이지 자리가 남았다는 뜻은 아니라서, 남은 자리는 예약 페이지에서 확인하세요. "열림 추정"은 지난 오픈 규칙으로 계산한 값이에요.'],
  ['check','확인 필요','캠핏은 지금 어디까지 열렸는지 공개하지 않아요. 다음 오픈이 내 날짜를 포함하지만 이미 열렸을 수도 있어요.'],
  ['none','공지·미공개','오픈 날짜를 캠핑장 공지로만 알리는 곳이에요. 인기 캠핑장에 많아요. 공지 제목을 보여드리니 예약 페이지에서 확인하세요.']];
 
+const nrm=s=>s.replace(/\(.*?\)|\[.*?\]/g,'').replace(/[\s·\-_.,&]/g,'').toLowerCase();
+const GRP=[];(()=>{const m={};D.camps.forEach((c,ci)=>{const k=nrm(c[0])+'|'+c[1];const g=(m[k]=m[k]||[]);let t=g.find(x=>!x.some(i=>D.camps[i][3]===c[3]));if(!t){t=[];g.push(t);}t.push(ci);GRP[ci]=t;});})();
+const RK={now:0,wait:1,likely:2,check:3,notice:4,none:5};
+function better(a,b){if(RK[a.st]!==RK[b.st])return RK[a.st]<RK[b.st];return (a.ms||9e15)<(b.ms||9e15);}
+function merge(rows,byDay){const best=new Map();rows.forEach(([ci,r])=>{const k=byDay?GRP[ci][0]+'|'+r.day:GRP[ci];const b=best.get(k);
+  if(!b){best.set(k,[ci,r,[]]);return;}if(better(r,b[1])){b[2].push([b[0],b[1]]);b[0]=ci;b[1]=r;}else b[2].push([ci,r]);});
+  return [...best.values()].map(([ci,r,alts])=>[ci,Object.assign({},r,{alts})]);}
+const favAny=ci=>GRP[ci].some(i=>fav.has(K(i)));
+const AT=ci=>GRP[ci].map(AT1).join('');
+const AT1=ci=>{const c=D.camps[ci];let a=(typeof ATTR!=='undefined'&&ATTR[c[4]])||'';if(/애견|반려|펫(?!트)|도그|독스|멍캠/.test(c[0])&&a.indexOf('P')<0)a+='p';if(/노키즈|노 키즈/.test(c[0]))a+='k';if(c[5]==='p')a+='P';return a;};
+function withOk(ci,w){if(!w)return true;const a=AT(ci);if(w==='pet')return a.indexOf('p')>=0;if(w==='nk')return a.indexOf('k')>=0;return a.indexOf('k')<0;}
 const K=ci=>D.camps[ci][4]+'#'+D.camps[ci][0];let fav=new Set();try{fav=new Set(JSON.parse(localStorage.getItem('caro_fav')||'[]'))}catch(e){}
 function saveFav(){try{localStorage.setItem('caro_fav',JSON.stringify([...fav]))}catch(e){};document.getElementById('mineCount').textContent=fav.size;}
 let view='find',tab='wait',limit=40;
@@ -312,29 +349,31 @@ function initForm(){
   let saved={};try{saved=JSON.parse(localStorage.getItem('ob_form')||'{}')}catch(e){}
   const def=addDays(todayKST(),56);let d=def;const p=parts(def);const w=new Date(Date.UTC(p.y,p.m-1,p.d)).getUTCDay();d=addDays(def,(6-w+7)%7);
   $('f-date').value=saved.date&&saved.date>todayKST()?saved.date:d;
-  ['nights','sido','plat'].forEach(k=>{if(saved[k]!=null)$('f-'+k).value=saved[k]});
+  ['nights','sido','plat','with'].forEach(k=>{if(saved[k]!=null)$('f-'+k).value=saved[k]});
   $('f-mem').checked=!!saved.mem;
 }
-function form(){return {date:$('f-date').value||todayKST(),nights:Number($('f-nights').value),sido:$('f-sido').value,plat:$('f-plat').value,q:$('f-q').value.trim(),mem:$('f-mem').checked,hot:$('f-hot').checked};}
+function form(){return {date:$('f-date').value||todayKST(),nights:Number($('f-nights').value),sido:$('f-sido').value,plat:$('f-plat').value,q:$('f-q').value.trim(),mem:$('f-mem').checked,hot:$('f-hot').checked,with:$('f-with').value};}
 
-function flapHTML(hhmm,dim){return '<span class="clock'+(dim?' dim':'')+'" aria-hidden="true">'+(hhmm?hhmm.slice(0,2)+':'+hhmm.slice(2):'--:--')+'</span>';}
+function flapHTML(hhmm,dim){const s=hhmm?hhmm.slice(0,2)+':'+hhmm.slice(2):'--:--';return '<span class="clock'+(dim?' dim':'')+'" aria-hidden="true">'+[...s].map((ch,i)=>'<span class="d" style="--i:'+i+'">'+ch+'</span>').join('')+'</span>';}
 const BELL='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>';
 const GO='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>';
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
+function attrChips(ci){const a=AT(ci);return (a.indexOf('p')>=0?'<span class="chip pet">🐶 반려견 동반</span>':'')+(a.indexOf('k')>=0?'<span class="chip nk">노키즈</span>':'');}
 function popChips(c){const x=c[10]||{};let h='';if(x.pub)h+='<span class="chip">공식 예약 규칙</span>';if(x.s>=65)h+='<span class="chip hot">예약 전쟁 '+x.s+'</span>';else if(x.s>=45)h+='<span class="chip hot">인기 '+x.s+'</span>';
-  if(x.st)h+='<span class="chip">별점 '+x.st+'</span>';if(x.r)h+='<span class="chip">리뷰 '+x.r.toLocaleString('ko-KR')+'</span>';
+  if(x.st)h+='<span class="chip">별점 '+(+x.st).toFixed(1)+'</span>';if(x.r)h+='<span class="chip">리뷰 '+x.r.toLocaleString('ko-KR')+'</span>';
   if(x.b)x.b.split(';').filter(Boolean).slice(0,2).forEach(b=>{h+='<span class="chip">'+esc(b.replace(/TOP/,' TOP'))+'</span>'});return h;}
-function rowHTML(ci,r,rank){
-  const c=D.camps[ci];const on=fav.has(K(ci));
+function rowHTML(ci,r,rank,ri){
+  const c=D.camps[ci];const on=favAny(ci);const alts=r.alts||[];const plats=[c[3]].concat(alts.map(a=>D.camps[a[0]][3]));
   const hasTime=r.ms!=null;const soon=hasTime&&r.ms>NOW()&&r.ms-NOW()<864e5;
-  const t=hasTime?flapHTML(r.time,r.st!=='wait')+'<span class="when">'+shortDay(r.day)+'</span>':flapHTML(null,true)+'<span class="when">'+(r.st==='now'?'바로 예약':'일정 없음')+'</span>';
+  const t=hasTime?flapHTML(r.time,r.st!=='wait')+'<span class="when">'+shortDay(r.day)+'</span>':'';
   const timeText=hasTime?fmtDay(r.day)+' '+fmtTime(r.time):'';
-  return '<div class="row"><div class="tcell" aria-label="'+esc(timeText)+'">'+t+'</div>'+
-   '<div class="ncell"><div class="name">'+(rank?'<span class="rank">'+rank+'</span>':'')+esc(c[0])+'</div><div class="meta"><span class="pill '+ST[r.st][1]+'">'+ST[r.st][0]+'</span><span>'+esc(c[1]+' '+c[2])+' · '+c[3]+'</span><span>'+esc(r.text)+'</span>'+
+  const altH=alts.length?'<div class="alts">'+alts.map(([a,ar])=>'<a class="alt" href="'+D.camps[a][4]+'" target="_blank" rel="noopener">'+esc(D.camps[a][3])+(ar.ms&&ar.st==="wait"?' '+shortDay(ar.day)+' '+ar.time.slice(0,2)+':'+ar.time.slice(2):' · '+ST[ar.st][0])+' ↗</a>').join('')+'</div>':'';
+  return '<div class="row'+(hasTime?'':' nt')+'" style="--r:'+Math.min(ri||0,14)+'">'+(hasTime?'<div class="tcell" aria-label="'+esc(timeText)+'">'+t+'</div>':'')+
+   '<div class="ncell"><div class="name">'+(rank?'<span class="rank">'+rank+'</span>':'')+esc(c[0])+'</div><div class="meta"><span class="pill '+ST[r.st][1]+'">'+ST[r.st][0]+'</span><span>'+esc(c[1]+' '+c[2])+' · '+plats.join('·')+'</span><span>'+esc(r.text+(r.st==='now'?' · 자리는 확인 필요':''))+'</span>'+
    (r.st==='wait'&&hasTime?'<span class="'+(soon?'soon':'')+'">'+left(r.ms)+'</span>':'')+'</div>'+
-   ((c[10]||{}).s||(c[10]||{}).pub?'<div class="chips">'+popChips(c)+'</div>':'')+
-   (rank?'<div class="rule">오픈 방식: '+esc(ruleText(c))+'</div>':'')+'</div>'+
+   (((c[10]||{}).s||(c[10]||{}).pub||attrChips(ci))?'<div class="chips">'+attrChips(ci)+popChips(c)+'</div>':'')+
+   (rank?'<div class="rule">오픈 방식: '+esc(ruleText(c))+'</div>':'')+altH+'</div>'+
    '<div class="acts"><button type="button" class="ib" data-fav="'+ci+'" aria-pressed="'+on+'" aria-label="'+esc(c[0])+(on?' 관심 해제':' 관심에 담기')+'">'+BELL+'</button>'+
    (r.st==='wait'||r.st==='check'?'<button type="button" class="btn ghost" data-ready="'+ci+'">준비 화면</button>':'<a class="ib" href="'+c[4]+'" target="_blank" rel="noopener" aria-label="'+esc(c[0])+' 예약 페이지 열기">'+GO+'</a>')+'</div></div>';
 }
@@ -343,10 +382,10 @@ function compute(){
   const f=form();try{localStorage.setItem('ob_form',JSON.stringify(f))}catch(e){}
   const out=[];
   D.camps.forEach((c,ci)=>{
-    if(f.sido&&c[1]!==f.sido)return;if(f.plat&&c[3]!==f.plat)return;if(f.q&&c[0].indexOf(f.q)<0)return;if(f.hot&&!((c[10]||{}).s>=45))return;
+    if(f.sido&&c[1]!==f.sido)return;if(f.plat&&c[3]!==f.plat)return;if(f.q&&c[0].indexOf(f.q)<0)return;if(f.hot&&!((c[10]||{}).s>=45))return;if(!withOk(ci,f.with))return;
     out.push([ci,evaluate(ci,f.date,f.nights,f.mem)]);
   });
-  return {f,out};
+  return {f,out:merge(out)};
 }
 
 function render(){
@@ -365,46 +404,47 @@ function render(){
     list(groups[tab]);
   } else if(view==='board'){
     $('tabs').hidden=true;
-    const now=NOW();const rows=D.events.filter(e=>kstMs(e[1],e[2])>now&&D.camps[e[0]][5]==='o'&&(!f.sido||D.camps[e[0]][1]===f.sido)&&(!f.plat||D.camps[e[0]][3]===f.plat))
+    const now=NOW();const rows=D.events.filter(e=>kstMs(e[1],e[2])>now&&withOk(e[0],f.with)&&D.camps[e[0]][5]==='o'&&(!f.sido||D.camps[e[0]][1]===f.sido)&&(!f.plat||D.camps[e[0]][3]===f.plat))
       .sort((a,b)=>kstMs(a[1],a[2])-kstMs(b[1],b[2]))
       .map(e=>[e[0],{st:'wait',ms:kstMs(e[1],e[2]),time:e[2],day:e[1],text:e[3].slice(5).replace('-','/')+'까지 오픈'}]);
     const has=new Set(rows.map(r=>r[0]+'|'+r[1].day));
-    D.camps.forEach((c,ci)=>{const x=c[10]||{};if(!x.rule||(x.rule.t!=='M'&&x.rule.t!=='L'))return;if(f.sido&&c[1]!==f.sido)return;if(f.plat&&c[3]!==f.plat)return;
+    D.camps.forEach((c,ci)=>{const x=c[10]||{};if(!x.rule||(x.rule.t!=='M'&&x.rule.t!=='L'))return;if(!withOk(ci,f.with))return;if(f.sido&&c[1]!==f.sido)return;if(f.plat&&c[3]!==f.plat)return;
       const d=ruleNext(x.rule);if(!d||has.has(ci+'|'+d))return;rows.push([ci,{st:'wait',ms:kstMs(d,x.rule.tm),time:x.rule.tm,day:d,text:x.rule.txt}]);});
-    rows.sort((a,b)=>a[1].ms-b[1].ms);
+    rows.splice(0,rows.length,...merge(rows,true));rows.sort((a,b)=>a[1].ms-b[1].ms);
     $('hint').textContent='곧 예약이 열리는 순서예요. 그래가는 거의 매일 오전 9시에 하루씩 열려서 전광판에는 캠핏·땡큐캠핑 일정과 월간 규칙이 있는 곳만 보여요. 국립휴양림·국립공원은 날짜로 찾기에서 확인하세요.';
     list(rows);
   } else if(view==='pop'){
     $('tabs').hidden=true;
-    const rows=D.camps.map((c,ci)=>[ci,c]).filter(([ci,c])=>(c[10]||{}).s>=45&&(!f.sido||c[1]===f.sido)&&(!f.plat||c[3]===f.plat)&&(!f.q||c[0].indexOf(f.q)>=0))
-      .sort((a,b)=>b[1][10].s-a[1][10].s).map(([ci])=>[ci,evaluate(ci,f.date,f.nights,f.mem)]);
+    const rows=D.camps.map((c,ci)=>[ci,c]).filter(([ci,c])=>(c[10]||{}).s>=45&&withOk(ci,f.with)&&(!f.sido||c[1]===f.sido)&&(!f.plat||c[3]===f.plat)&&(!f.q||c[0].indexOf(f.q)>=0))
+      .map(([ci])=>[ci,evaluate(ci,f.date,f.nights,f.mem)]);
+    const pr=merge(rows).sort((a,b)=>D.camps[b[0]][10].s-D.camps[a[0]][10].s);rows.splice(0,rows.length,...pr);
     $('hint').textContent='예약이 어려운 순서예요. 인기 점수는 리뷰 수, 별점(그래가), 캠핏 TOP 배지와 조회 순위로 계산해요. 상태는 '+fmtDay(f.date)+' '+f.nights+'박 기준이에요.';
     list(rows,'조건에 맞는 인기 캠핑장이 없어요. 지역이나 플랫폼을 넓혀 보세요.',true);
   } else {
     $('tabs').hidden=true;
-    const rows=D.camps.map((c,ci)=>ci).filter(ci=>fav.has(K(ci))).map(ci=>[ci,evaluate(ci,f.date,f.nights,f.mem)]);
+    const rows=merge(D.camps.map((c,ci)=>ci).filter(ci=>fav.has(K(ci))).map(ci=>[ci,evaluate(ci,f.date,f.nights,f.mem)]));
     $('hint').textContent=fav.size?fmtDay(f.date)+' 체크인 기준으로 관심 캠핑장 상태를 보여드려요. 관심 목록은 이 기기에만 저장돼요.':'';
     list(rows,'아직 관심 캠핑장이 없어요. 날짜로 찾기나 전광판에서 종을 눌러 담아 보세요.');
   }
 }
-let cur=[];
+let cur=[];let animNext=true;
 let ranked=false;
 function list(rows,emptyText,rk){
   cur=rows;ranked=!!rk;
   if(!rows.length){$('list').innerHTML='<div class="empty">'+esc(emptyText||'조건에 맞는 캠핑장이 없어요. 지역이나 플랫폼을 넓혀 보세요.')+'</div>';$('moreWrap').hidden=true;return;}
-  $('list').innerHTML=rows.slice(0,limit).map(([ci,r],i)=>rowHTML(ci,r,ranked?i+1:0)).join('');
+  $('list').innerHTML=rows.slice(0,limit).map(([ci,r],i)=>rowHTML(ci,r,ranked?i+1:0,i-(limit-40))).join('');$('list').classList.toggle('anim',animNext);animNext=false;
   $('moreWrap').hidden=rows.length<=limit;$('more').textContent='더 보기 ('+(rows.length-limit)+'곳 남음)';
 }
 
-function setView(v){view=v;limit=40;['pop','find','board','mine'].forEach(x=>$('v-'+x).setAttribute('aria-pressed',x===v));render();}
+function setView(v){animNext=true;view=v;limit=40;['pop','find','board','mine'].forEach(x=>$('v-'+x).setAttribute('aria-pressed',x===v));render();}
 $('v-pop').onclick=()=>setView('pop');$('v-find').onclick=()=>setView('find');$('v-board').onclick=()=>setView('board');$('v-mine').onclick=()=>setView('mine');
-$('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;tab=b.dataset.tab;limit=40;render();});
-$('search').addEventListener('input',()=>{limit=40;render();});
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;tab=b.dataset.tab;limit=40;animNext=true;render();});
+$('search').addEventListener('input',()=>{limit=40;animNext=true;render();});
 $('search').addEventListener('submit',e=>e.preventDefault());
-$('more').onclick=()=>{limit+=40;list(cur,null,ranked);};
+$('more').onclick=()=>{limit+=40;animNext=true;list(cur,null,ranked);};
 $('list').addEventListener('click',e=>{
-  const f=e.target.closest('[data-fav]');if(f){const ci=Number(f.dataset.fav);fav.has(K(ci))?fav.delete(K(ci)):fav.add(K(ci));saveFav();
-    const on=fav.has(K(ci));f.setAttribute('aria-pressed',on);f.setAttribute('aria-label',D.camps[ci][0]+(on?' 관심 해제':' 관심에 담기'));if(view==='mine')render();return;}
+  const f=e.target.closest('[data-fav]');if(f){const ci=Number(f.dataset.fav);favAny(ci)?GRP[ci].forEach(i=>fav.delete(K(i))):fav.add(K(ci));saveFav();
+    const on=favAny(ci);f.setAttribute('aria-pressed',on);if(on){f.classList.remove('ring');void f.offsetWidth;f.classList.add('ring');}f.setAttribute('aria-label',D.camps[ci][0]+(on?' 관심 해제':' 관심에 담기'));if(view==='mine')render();return;}
   const r=e.target.closest('[data-ready]');if(r)openReady(Number(r.dataset.ready));
 });
 
@@ -422,8 +462,8 @@ function openReady(ci){
   $('r-cal').href=r.ms?gcal(c,r.ms):c[4];
   $('r-tip').textContent='오픈 전에 '+c[3]+' 로그인만 해 두세요.';
   const tick=()=>{if(!r.ms){$('r-count').textContent='';return;}let s=Math.max(0,Math.round((r.ms-NOW())/1000));const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),sec=s%60;
-    $('r-count').textContent=d>0?d+'일 '+h+'시간':pad(h>0?h:m)+':'+pad(h>0?m:sec);$('r-count').setAttribute('aria-label',d>0?d+'일 '+h+'시간 남음':(h>0?h+'시간 '+m+'분 남음':m+'분 '+sec+'초 남음'));};
-  tick();clearInterval(timer);timer=setInterval(tick,1000);
+    const txt=d>0?d+'일 '+h+'시간':pad(h>0?h:m)+':'+pad(h>0?m:sec);const el=$('r-count');const prev=el.dataset.v||'';if(prev!==txt){el.innerHTML=[...txt].map((ch,i)=>'<span class="d'+(prev&&prev[i]!==ch?' tick':'')+'">'+(ch===' '?'&nbsp;':ch)+'</span>').join('');el.dataset.v=txt;}el.classList.toggle('urgent',s>0&&s<=60);$('r-count').setAttribute('aria-label',d>0?d+'일 '+h+'시간 남음':(h>0?h+'시간 '+m+'분 남음':m+'분 '+sec+'초 남음'));};
+  $('r-count').dataset.v='';tick();clearInterval(timer);timer=setInterval(tick,1000);
   $('ready').hidden=false;$('r-close').focus();
 }
 function closeReady(){$('ready').hidden=true;clearInterval(timer);if(lastFocus)lastFocus.focus();}
@@ -431,9 +471,10 @@ $('r-close').onclick=closeReady;
 $('ready').addEventListener('click',e=>{if(e.target===$('ready'))closeReady();});
 $('ready').addEventListener('keydown',e=>{if(e.key==='Escape')closeReady();});
 
-(()=>{const M=D.meta||{};const a=new Date(Date.parse(D.asOf)+9*3600e3);const ds=a.getUTCFullYear()+'년 '+(a.getUTCMonth()+1)+'월 '+a.getUTCDate()+'일 '+pad(a.getUTCHours())+':'+pad(a.getUTCMinutes());$('asof').textContent='데이터 기준: '+ds+' 수집 (캠핏 30일 내 오픈 일정 '+(M.sched||412)+'곳 + 리뷰·조회 상위 인기 캠핑장 '+(M.pop||130)+'곳, 그래가 전체 '+(M.graega||86)+'곳). 매일 새벽 자동으로 새로 모아요. 땡큐캠핑 예약 오픈 캘린더 '+(M.thankq||0)+'곳도 매일 함께 모아요. 국립자연휴양림 '+PUB.camps.filter(c=>c[5]==='f').length+'곳(숲나들e)·국립공원 야영장 '+PUB.camps.filter(c=>c[5]==='p').length+'곳·서울시 공공 캠핑장 '+PUB.camps.filter(c=>c[3]==='서울시').length+'곳은 공식 예약 규칙(숲나들e 이용안내, 국립공원 예약시스템 추첨제 안내, 서울시 캠핑장 안내, '+PUB.asOf+' 확인)으로 계산하고, 달밭리트릿·독차지처럼 자체 사이트로 받는 곳은 공지·예약 달력 기준 추정이에요. 공휴일은 2027년까지 반영했어요. 롤링·월간 규칙 계산과 "열림 추정"은 예상값이에요. 재방문율은 두 플랫폼 모두 공개하지 않아 점수에 아직 넣지 못했어요. 예약과 결제는 각 플랫폼에서 직접 해요.';const age=(NOW()-Date.parse(D.asOf))/86400e3;if(age>2){const s=$('stale');s.hidden=false;s.textContent='⚠ 데이터가 '+Math.floor(age)+'일 전 기준이에요. 자동 갱신이 멈췄을 수 있으니, 오픈 시각은 예약 페이지 공지로 한 번 더 확인하세요.';}})();
+(()=>{const M=D.meta||{};const a=new Date(Date.parse(D.asOf)+9*3600e3);const ds=a.getUTCFullYear()+'년 '+(a.getUTCMonth()+1)+'월 '+a.getUTCDate()+'일 '+pad(a.getUTCHours())+':'+pad(a.getUTCMinutes());$('asof').textContent='데이터 기준: '+ds+' 수집 (캠핏 30일 내 오픈 일정 '+(M.sched||412)+'곳 + 리뷰·조회 상위 인기 캠핑장 '+(M.pop||130)+'곳, 그래가 전체 '+(M.graega||86)+'곳). 매일 새벽 자동으로 새로 모아요. 땡큐캠핑 예약 오픈 캘린더 '+(M.thankq||0)+'곳도 매일 함께 모아요. 국립자연휴양림 '+PUB.camps.filter(c=>c[5]==='f').length+'곳(숲나들e)·국립공원 야영장 '+PUB.camps.filter(c=>c[5]==='p').length+'곳·서울시 공공 캠핑장 '+PUB.camps.filter(c=>c[3]==='서울시').length+'곳은 공식 예약 규칙(숲나들e 이용안내, 국립공원 예약시스템 추첨제 안내, 서울시 캠핑장 안내, '+PUB.asOf+' 확인)으로 계산하고, 달밭리트릿·독차지처럼 자체 사이트로 받는 곳은 공지·예약 달력 기준 추정이에요. 공휴일은 2027년까지 반영했어요. 롤링·월간 규칙 계산과 "열림 추정"은 예상값이에요. 재방문율은 두 플랫폼 모두 공개하지 않아 점수에 아직 넣지 못했어요. 🐶 반려견·노키즈 표시는 캠핏 예약 옵션, 땡큐캠핑 시설 정보, 그래가 반려동물 안내(2026-10-25 확인)와 캠핑장 이름 기준이에요. 구역·견종 크기 제한이 있을 수 있으니 예약 전에 꼭 확인하세요. 국립공원 야영장은 반려동물 출입이 안 돼요. 예약과 결제는 각 플랫폼에서 직접 해요.';const age=(NOW()-Date.parse(D.asOf))/86400e3;if(age>2){const s=$('stale');s.hidden=false;s.textContent='⚠ 데이터가 '+Math.floor(age)+'일 전 기준이에요. 자동 갱신이 멈췄을 수 있으니, 오픈 시각은 예약 페이지 공지로 한 번 더 확인하세요.';}})();
+(()=>{const h=$('heroSub');if(h)h.textContent=h.textContent.replace(/\d+곳 중/,new Set(GRP).size+'곳 중');})();
 initForm();render();
-setInterval(()=>{if(view!=='mine'&&$('ready').hidden)render();},60000);
+setInterval(()=>{if(view!=='mine'&&$('ready').hidden){animNext=false;render();}},60000);
 </script>
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}</script>
 </body>
