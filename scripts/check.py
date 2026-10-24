@@ -22,7 +22,7 @@ if D:
     try:
         a = datetime.datetime.fromisoformat(D["asOf"])
         age = datetime.datetime.now(a.tzinfo) - a
-        need(age < datetime.timedelta(days=4), f"데이터 기준시각 {D['asOf']} (4일 이내)")
+        need(age < datetime.timedelta(days=9), f"데이터 기준시각 {D['asOf']} (9일 이내)")
     except Exception as e: need(False, f"asOf 오류: {e}")
     m = D.get("meta", {})
     need(len(m.get("popReview", [])) >= 50, "인기 캠핑장 목록 50곳 이상")

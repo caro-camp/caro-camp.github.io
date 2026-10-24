@@ -10,7 +10,7 @@
 
 ## 안전하게 업데이트하는 규칙
 - **배포는 자동 검사를 통과해야만** 됩니다 (`.github/workflows/deploy.yml`). 데이터가 비었거나, 캠핑장 수가 갑자기 줄었거나, 화면에 JS 오류가 나면 배포가 멈추고 지금 사이트가 그대로 유지됩니다.
-- 매일 갱신은 `data.js`·`pub.js`만 바꿉니다(`attr.js` 반려견·노키즈 정보는 필요할 때만). 화면 수정은 `index.html`에서 하므로 서로 덮어쓰지 않습니다.
+- 주 1회(토요일 새벽) 갱신은 `data.js`·`pub.js`만 바꿉니다(`attr.js` 반려견·노키즈 정보는 필요할 때만). 화면 수정은 `index.html`에서 하므로 서로 덮어쓰지 않습니다.
 - 큰 화면 수정은 `dev` 브랜치에서 하고, 검사 통과 후 `main`에 합칩니다.
 - 출시 시점마다 `backup-YYYYMMDD` 브랜치로 백업합니다. 되돌리기: `git revert <커밋>` 또는 백업 브랜치 파일 복원.
 - 직접 검사: `python3 scripts/check.py && node scripts/smoke.js`
