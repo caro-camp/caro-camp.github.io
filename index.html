@@ -10,7 +10,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="CARO">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://gc.zgo.at; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://caro-camp.goatcounter.com; connect-src 'self' https://caro-camp.goatcounter.com; base-uri 'self'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
@@ -195,6 +195,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   <div class="board" id="list" aria-live="polite"></div>
   <div class="more" id="moreWrap" hidden><button type="button" class="btn" id="more">더 보기</button></div>
   <p class="note" id="asof"></p>
+  <p class="note" style="opacity:.75">방문 수만 익명으로 세요. 쿠키·개인정보는 저장하지 않아요.</p>
 </main>
 
 <div class="overlay" id="ready" hidden role="dialog" aria-modal="true" aria-labelledby="r-title">
@@ -477,5 +478,12 @@ initForm();render();
 setInterval(()=>{if(view!=='mine'&&$('ready').hidden){animNext=false;render();}},60000);
 </script>
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}</script>
+<script>
+// 방문·버튼 사용 수 집계 (GoatCounter, 쿠키 없음)
+function caroEv(n){try{if(window.goatcounter&&goatcounter.count)goatcounter.count({path:n,title:n,event:true});}catch(e){}}
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[target=_blank]');if(!a||!a.href)return;
+  caroEv(a.href.indexOf('calendar.google')>=0?'calendar-add':'open-booking');},true);
+</script>
+<script data-goatcounter="https://caro-camp.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>
