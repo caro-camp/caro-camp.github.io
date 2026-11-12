@@ -1,0 +1,979 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="duty-online" content="1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>당직 근무표</title>
+<style>
+/* ============================================================
+   당직부관 근무표 — 당직부관 도우미 v5 디자인 계열
+   색: 스톤 / 코발트 / 탠저린 · 서체: 시스템(맑은 고딕)
+   ============================================================ */
+:root{
+ --bg:#F4F5F2;--side:#EEF0EB;--card:#FFFFFF;--line:#E2E4DF;--line2:#F0F2EE;--text:#17191C;--sub:#62686F;--faint:#9AA0A6;
+ --accent:#3355FF;--accentH:#2443E6;--onAccent:#FFFFFF;--accent2:#ECF0FF;
+ --now:#FF7A1A;--now2:#FFEDE0;
+ --red:#D92D3A;--red2:#FDECEE;--green:#13855A;--green2:#E3F4EC;--amber:#A86400;--amber2:#FFF2DC;
+ --paper:#FFFFFF;--pline:#7d7d7d;--pink:#F3C9C4;--sky:#8CCAF0;--yel:#F6D84A;--chg:#2A56C6;
+ --r-lg:14px;--r:10px;--r-sm:7px;
+ --pop:0 18px 40px -16px rgba(23,25,28,.28),0 2px 8px rgba(23,25,28,.06);
+ --ring:0 0 0 3px rgba(51,85,255,.22);
+ --sideW:256px;--topH:60px;
+ color-scheme:light;
+}
+[data-theme=dark]{
+ --bg:#0E1014;--side:#0B0D10;--card:#161A20;--line:#272C34;--line2:#1C2027;--text:#E9EBEE;--sub:#939AA4;--faint:#5E6570;
+ --accent:#7189FF;--accentH:#8C9FFF;--onAccent:#0B0D10;--accent2:#1C2342;
+ --now:#FF9445;--now2:#3A2414;
+ --red:#FF6B74;--red2:#3A1A1F;--green:#45D193;--green2:#12291F;--amber:#F2B44A;--amber2:#33270F;
+ --pop:0 24px 48px -16px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.04);
+ --ring:0 0 0 3px rgba(113,137,255,.3);
+ color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+html,body{margin:0;color:var(--text);font-family:"DutySans","Pretendard Variable","Pretendard","맑은 고딕","Malgun Gothic",system-ui,sans-serif;font-size:15px;line-height:1.5;letter-spacing:-.006em;-webkit-font-smoothing:antialiased}
+body{background:var(--bg)}
+button{font-family:inherit;font-size:14px;cursor:pointer;color:inherit}
+input,select,textarea{font-family:inherit;font-size:14px;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:var(--r-sm);padding:7px 10px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:var(--ring)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--card);font-weight:600;white-space:nowrap}
+.btn:hover{border-color:var(--faint)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--onAccent)}
+.btn.pri:hover{background:var(--accentH)}
+.btn.danger{color:var(--red)}
+.btn.sm{height:28px;padding:0 9px;font-size:13px}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.ghost:hover{background:var(--line2)}
+.btn:disabled{opacity:.4;cursor:default}
+svg.i{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- 레이아웃 ---------- */
+.app{display:grid;grid-template-columns:var(--sideW) minmax(0,1fr);grid-template-rows:var(--topH) 1fr;min-height:100vh}
+.top{grid-column:1/-1;position:sticky;top:0;z-index:20;height:var(--topH);display:flex;align-items:center;gap:12px;padding:0 18px;background:var(--card);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;width:calc(var(--sideW) - 18px);flex:none}
+.brand .num{font-size:26px;font-weight:800;letter-spacing:-.04em;color:var(--accent);line-height:1}
+.brand .tx{line-height:1.15}
+.brand .tx small{display:block;font-size:11.5px;color:var(--sub);font-weight:600}
+.brand .tx b{font-size:15px}
+.mnav{display:flex;align-items:center;gap:4px}
+.mnav .lab{min-width:118px;text-align:center;font-size:17px;font-weight:700}
+.top .sp{flex:1}
+.side{background:var(--side);border-right:1px solid var(--line);padding:16px 12px;position:sticky;top:var(--topH);height:calc(100vh - var(--topH));overflow:auto;display:flex;flex-direction:column;gap:14px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav .grp{font-size:11.5px;font-weight:700;color:var(--faint);padding:10px 10px 4px;letter-spacing:.02em}
+.nav button{display:flex;align-items:center;gap:10px;width:100%;height:38px;padding:0 10px;border:none;background:transparent;border-radius:var(--r-sm);text-align:left;color:var(--sub);font-weight:600}
+.nav button:hover{background:var(--line2);color:var(--text)}
+.nav button.on{background:var(--card);color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.06),inset 3px 0 0 var(--accent)}
+.nav .badge{margin-left:auto;font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:10px;background:var(--red2);color:var(--red)}
+.nav .badge.b{background:var(--accent2);color:var(--accent)}
+.today{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.today h5{margin:0 0 6px;font-size:12px;color:var(--sub);font-weight:700}
+.today .row2{display:flex;justify-content:space-between;gap:8px;padding:3px 0;font-size:14px}
+.today .row2 span:first-child{color:var(--sub)}
+.today .row2 b{font-weight:700}
+.today .me{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:13px}
+.today .me b{color:var(--now)}
+.main{padding:22px 26px 100px;min-width:0}
+.ph{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.ph h1{margin:0;font-size:22px;letter-spacing:-.02em}
+.ph p{margin:2px 0 0;color:var(--sub);font-size:13.5px}
+.ph .sp{flex:1}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px}
+.card+.card{margin-top:14px}
+.card h3{margin:0 0 4px;font-size:16px}
+.card .desc{margin:0 0 12px;color:var(--sub);font-size:13.5px}
+.seg{display:inline-flex;background:var(--line2);border:1px solid var(--line);border-radius:var(--r-sm);padding:3px;gap:2px}
+.seg button{height:30px;padding:0 12px;border:none;background:transparent;border-radius:5px;font-weight:600;color:var(--sub)}
+.seg button.on{background:var(--card);color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.seg button.on.sw{color:var(--now)}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.fr{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.fr label{font-size:13px;color:var(--sub);font-weight:600}
+.hint{color:var(--sub);font-size:12.5px;line-height:1.65;margin:8px 0 0}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:10px}
+.tag.ex{background:var(--green2);color:var(--green)}.tag.new{background:var(--accent2);color:var(--accent)}.tag.out{background:var(--red2);color:var(--red)}.tag.ok{background:var(--line2);color:var(--sub)}
+.tag.sw{background:var(--now2);color:var(--now)}
+table.t{border-collapse:collapse;width:100%}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:9px 10px;font-size:13.5px;text-align:left;vertical-align:middle}
+table.t th{font-size:12.5px;color:var(--sub);font-weight:700;background:var(--line2)}
+table.t tr:last-child td{border-bottom:none}
+.ri{display:flex;align-items:center;gap:8px;padding:5px 4px;border-bottom:1px solid var(--line2)}
+.ri .no{width:22px;color:var(--faint);text-align:right;font-size:12.5px}
+.ri .btns{margin-left:auto;display:flex;gap:2px}
+.ri .btns button{width:26px;height:24px;border:1px solid var(--line);background:var(--card);border-radius:5px;font-size:12px;color:var(--sub)}
+.ri .btns button:hover{color:var(--text);border-color:var(--faint)}
+.nx{font-size:11.5px;font-weight:700;color:var(--now);background:var(--now2);padding:0 6px;border-radius:8px}
+.warn{margin:0;padding-left:18px}.warn li{color:var(--red);margin:4px 0;font-size:13.5px}
+.empty-st{color:var(--faint);text-align:center;padding:28px 0}
+
+/* ---------- 근무표 종이 ---------- */
+.sheetWrap{overflow-x:auto}
+.sheet{background:var(--paper);color:#111;padding:16px 18px;border-radius:var(--r);min-width:760px;border:1px solid var(--line)}
+.sheet h2{text-align:center;font-size:28px;letter-spacing:6px;margin:2px 0 6px;color:#111}
+.meta{display:flex;justify-content:center;gap:28px;font-size:13px;margin-bottom:10px;flex-wrap:wrap}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-left:1px solid var(--pline);border-top:1px solid var(--pline)}
+.cal>div{border-right:1px solid var(--pline);border-bottom:1px solid var(--pline);min-width:0}
+.hd{text-align:center;font-size:16px;padding:3px 0;background:#fff}
+.hd.sun{background:var(--pink)}
+.cell{min-height:116px;display:flex;flex-direction:column;background:#fff}
+.dbar{background:var(--yel);text-align:center;font-size:15px;padding:2px 0;border-bottom:1px solid var(--pline);position:relative}
+.dbar .hn{font-size:11px;color:#a00;margin-left:3px}
+.cell.sun .slots{background:var(--pink)}
+.cell.sat .slots{background:var(--sky)}
+.slots{flex:1;display:flex;flex-direction:column;justify-content:center;padding:4px 3px;gap:5px}
+.slot{text-align:center;font-size:15px;line-height:1.35;border-radius:5px;padding:2px;position:relative;cursor:pointer}
+.slot:hover{background:rgba(255,255,255,.55)}
+.ln.chg{color:var(--chg)}
+.ln.fin{font-weight:700}
+.slot.mine{box-shadow:inset 0 0 0 2px #FF7A1A}
+.m-swap .slot{outline:1px dashed #6b7c93}
+.slot.sel{outline:3px solid #FF7A1A!important;background:#FFF1E4!important}
+.ck{position:absolute;left:3px;top:1px;font-size:13px;color:#C2560C}
+.m-hol .dbar{cursor:pointer}.m-hol .dbar:hover{background:#FFB74D}
+.m-hol .slot{cursor:default}
+.cell.isToday .dbar{box-shadow:inset 0 0 0 2px #d32f2f;font-weight:700}
+.cell.fixed .dbar::after{content:"🔒";font-size:10px;position:absolute;right:4px;top:3px}
+.emp{background:#f6f6f4}
+.nd{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;margin:-4px -3px;color:#444;background:repeating-linear-gradient(135deg,#ECECEA 0 7px,#F7F7F5 7px 14px)}
+.nd b{font-size:15px}.nd small{font-size:12px;color:#777}
+.blank{color:#aaa;text-align:center}
+.rotlines{border:1px solid var(--pline);border-top:none;padding:10px 14px;font-size:13.5px;line-height:1.75;text-align:center}
+.rotlines hr{border:none;border-top:1px dashed #555;width:60%;margin:6px auto}
+.cnt{color:#c0392b}
+.notes{border:1px solid var(--pline);border-top:none;padding:10px 14px;color:#2a56c6;font-size:14px;line-height:1.8;white-space:pre-wrap}
+.c-ex{color:#1f8a3b}.c-new{color:#2a56c6}.c-out{color:#c62828;text-decoration:line-through}
+.panel .c-ex{color:var(--green)}.panel .c-new{color:var(--accent)}.panel .c-out{color:var(--red)}
+
+/* ---------- 하단 바 · 토스트 ---------- */
+#bar{position:fixed;left:calc(var(--sideW) + 20px);right:20px;bottom:18px;z-index:30;display:none;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;border-radius:var(--r-lg);background:#15191F;color:#E9EBEE;box-shadow:var(--pop);font-size:14px}
+#bar .k{color:#FFB37A;font-weight:700}
+#bar .hint{color:#9AA3AE;margin:0}
+#bar select{background:#232830;color:#E9EBEE;border-color:#3A414B}
+#bar .btn{background:#232830;border-color:#3A414B;color:#E9EBEE}
+#bar .btn.pri{background:#FF7A1A;border-color:#FF7A1A;color:#15191F}
+#bar .btn.danger{color:#FF8A92}
+#toast{position:fixed;top:72px;left:50%;transform:translateX(-50%);background:#15191F;color:#fff;padding:10px 18px;border-radius:var(--r);display:none;z-index:40;box-shadow:var(--pop);font-weight:600}
+#toast.ok::before{content:"✓ ";color:#45D193}
+
+#modal{position:fixed;inset:0;background:rgba(10,12,16,.5);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+.mbox{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;max-width:440px;width:100%;box-shadow:var(--pop)}
+.mmsg{line-height:1.65;font-size:14.5px}
+.navToggle{display:none}
+.card{overflow-x:auto}
+/* 휴대폰 목록 보기 */
+.lst{display:flex;flex-direction:column}
+.lrow{display:flex;align-items:stretch;border-bottom:1px solid var(--line2);min-height:52px}
+.lrow:last-child{border-bottom:none}
+.ld{width:62px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;border-right:1px solid var(--line2);font-size:12px;color:var(--sub)}
+.ld b{font-size:19px;color:var(--text);line-height:1.1}
+.lrow.sun .ld,.lrow.sun .ld b{color:var(--red)}.lrow.sat .ld,.lrow.sat .ld b{color:var(--accent)}
+.lrow.sun{background:color-mix(in srgb,var(--red) 5%,transparent)}.lrow.sat{background:color-mix(in srgb,var(--accent) 5%,transparent)}
+.lrow.isToday{box-shadow:inset 4px 0 0 var(--now);background:var(--now2)}
+.lrow.isToday .ld b::after{content:"오늘";display:block;font-size:10.5px;color:var(--now);font-weight:800;text-align:center}
+.lb{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:6px 10px}
+.lhn{font-size:12px;color:var(--red);font-weight:700}
+.lsl{display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;cursor:pointer;font-size:15.5px}
+.lsl:hover{background:var(--line2)}
+.lsl .lt{flex:none;font-size:11.5px;font-weight:700;color:var(--sub);background:var(--line2);border-radius:5px;padding:1px 6px;min-width:36px;text-align:center}
+.lsl .o{color:var(--faint);text-decoration:line-through;font-size:13.5px}
+.lsl .f{font-weight:700}.lsl .f.c{color:var(--accent)}
+.lsl.mine{box-shadow:inset 0 0 0 2px var(--now)}
+.lsl.sel{outline:2px solid var(--now);background:var(--now2)}
+.lnd{color:var(--sub);font-size:14px}.lnd b{color:var(--text)}
+.m-hol .ld{cursor:pointer}.m-hol .ld:hover{background:var(--amber2)}
+.lrow.fixed .ld::after{content:"🔒";font-size:9px}
+/* 잠금 화면 */
+#gate{position:fixed;inset:0;z-index:80;background:var(--bg);display:none;align-items:center;justify-content:center;padding:20px;overflow:auto}
+.gbox{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--pop);padding:30px 26px;width:100%;max-width:380px;text-align:center}
+.gbox.wide{max-width:520px;text-align:left}
+.gbox h1{margin:6px 0 4px;font-size:24px}
+.gbox p{color:var(--sub);margin:0 0 16px;font-size:14px}
+.glogo{width:56px;height:56px;border-radius:16px;background:var(--accent2);color:var(--accent);display:grid;place-items:center;margin:0 auto;font-size:26px}
+#gcode{width:100%;font-size:30px;letter-spacing:14px;text-align:center;padding:10px;font-weight:800}
+.gerr{color:var(--red);font-weight:700;font-size:13.5px;min-height:20px;margin:8px 0}
+.gbox .btn{width:100%;justify-content:center;height:46px;font-size:16px;margin-top:6px}
+.gchk{display:flex;align-items:center;justify-content:center;gap:6px;font-size:13.5px;color:var(--sub);margin-top:10px}
+.gbox .fr label{width:120px}
+.gbox .fr input{flex:1;min-width:0}
+/* 게시 배너 */
+.dirty{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--amber2);border:1px solid color-mix(in srgb,var(--amber) 35%,transparent);color:var(--text);border-radius:var(--r);padding:10px 14px;margin-bottom:14px;font-size:14px}
+.dirty b{color:var(--amber)}
+.roleTag{font-size:12px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--line2);color:var(--sub)}
+.roleTag.adm{background:var(--green2);color:var(--green)}
+.meRow{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--line2)}
+.meRow .dd{font-size:12px;font-weight:800;color:var(--now);background:var(--now2);border-radius:8px;padding:2px 8px;min-width:52px;text-align:center}
+.meRow .dd.t{background:var(--now);color:#fff}
+@media(max-width:900px){
+ :root{--sideW:0px;--topH:auto}
+ html,body{overflow-x:hidden}
+ .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto 1fr}
+ .top{height:auto;flex-wrap:wrap;padding:8px 12px;gap:6px}
+ .brand{width:auto}.brand .tx small{display:none}.brand .num{font-size:22px}.brand .tx b{font-size:14px}
+ .top .sp{flex:1}
+ .top .hideM{display:none}
+ .mnav{order:5;width:100%;justify-content:space-between;border-top:1px solid var(--line2);padding-top:6px}
+ .mnav .lab{font-size:16px;min-width:0}
+ .side{position:sticky;top:0;z-index:15;height:auto;padding:8px 12px;gap:8px;border-right:none;border-bottom:1px solid var(--line)}
+ .navToggle{display:flex;align-items:center;gap:8px;width:100%;height:42px;padding:0 12px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--card);font-weight:700;font-size:15px}
+ .navToggle .cur{color:var(--accent)}.navToggle .arr{margin-left:auto;color:var(--sub);transition:transform .2s}
+ .side.open .navToggle .arr{transform:rotate(180deg)}
+ .nav{display:none;grid-template-columns:1fr 1fr;gap:6px}
+ .side.open .nav{display:grid}
+ .nav .grp{display:none}
+ .nav button{height:44px;background:var(--card);border:1px solid var(--line);font-size:14px}
+ .nav button.on{box-shadow:inset 0 0 0 2px var(--accent)}
+ .today{display:none}
+ .grid3,.grid2{grid-template-columns:minmax(0,1fr)}
+ .main{padding:14px 12px 130px}
+ .ph h1{font-size:20px}
+ .ph .seg{width:100%;display:flex}.ph .seg button{flex:1;height:36px}
+ .card{padding:14px}
+ input,select,textarea{font-size:16px}
+ .fr>input[type=date]{flex:1;min-width:140px}
+ .fr .btn{height:42px}
+ .btn.sm{height:34px}
+ #bar{left:8px;right:8px;bottom:8px;padding:10px 12px}
+ .sheetHint{display:block!important}
+}
+@media print{
+ @page{size:A4 portrait;margin:8mm}
+ html,body{background:#fff}
+ .top,.side,.ph,#bar,#toast,.noprint{display:none!important}
+ .app{display:block}.main{padding:0}
+ .card{border:none;padding:0;background:#fff}
+ .sheet{border:none;padding:0;min-width:0}
+ .cell.fixed .dbar::after{content:none}
+ .slot.sel,.slot.mine{outline:none!important;box-shadow:none!important;background:transparent!important}
+ .ck{display:none}.m-swap .slot{outline:none}
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="app">
+ <header class="top">
+  <div class="brand"><span class="num" id="bNum"></span><span class="tx"><small id="bName"></small><b>당직부관 근무표</b></span></div>
+  <div class="mnav">
+   <button class="btn ghost sm" onclick="go(-1)" title="이전 달">◀</button>
+   <span class="lab" id="mlabel"></span>
+   <button class="btn ghost sm" onclick="go(1)" title="다음 달">▶</button>
+   <button class="btn sm" onclick="goToday()">이번 달</button>
+  </div>
+  <span class="sp"></span>
+  <button class="btn sm pri" onclick="copyForHwp()" title="한글(HWP)에 붙여넣기용으로 복사"><svg class="i" viewBox="0 0 24 24"><path d="M9 9h11v11H9zM5 15H4V4h11v1"/></svg>한글로 복사</button>
+  <button class="btn sm hideM" onclick="window.print()"><svg class="i" viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4v-7h16v7h-2M8 14h8v7H8z"/></svg>인쇄</button>
+  <span class="roleTag" id="roleTag" style="display:none"></span><button class="btn sm" id="admBtn" style="display:none" onclick="adminBtn()"></button>
+  <button class="btn sm hideM" id="bakBtn" onclick="exportJSON()"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v3h16v-3"/></svg>백업 저장</button>
+  <button class="btn sm" onclick="toggleTheme()" id="themeBtn" title="주간/야간 화면"></button>
+ </header>
+
+ <aside class="side" id="side">
+  <button class="navToggle" onclick="toggleNav()">☰ 메뉴 <span class="cur" id="navCur"></span><span class="arr">▾</span></button>
+  <nav class="nav" id="nav"></nav>
+  <div class="today" id="todayCard"></div>
+ </aside>
+
+ <main class="main" id="main"></main>
+</div>
+<div id="bar"></div>
+<div id="toast"></div>
+<div id="modal"></div>
+<div id="gate"></div>
+<input type="file" id="imp" accept=".json" hidden onchange="importJSON(this)">
+
+<script>
+const KEY='dutyRoster17_v1',THEME_KEY='dutyRoster17_theme';
+const DOW=['일','월','화','수','목','금','토'];
+const TN={wd:'평일',d:'주간',n:'야간'};
+const TL={wd:'평일 근무순번{월~금}',d:'주말(주간) 근무순번{토~일}',n:'주말(야간) 근무순번{토~일}'};
+const $=s=>document.querySelector(s);
+const pad=n=>String(n).padStart(2,'0');
+const ds=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const pd=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)};
+const addD=(s,n)=>{const d=pd(s);d.setDate(d.getDate()+n);return ds(d)};
+const dow=s=>pd(s).getDay();
+const TODAY=ds(new Date());
+const has=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function fmt(d){const x=pd(d);return (x.getMonth()+1)+'/'+x.getDate()+'('+DOW[x.getDay()]+')'}
+function editedFmt(s){const x=pd(s);return `${x.getFullYear()} ${pad(x.getMonth()+1)} ${pad(x.getDate())} (${DOW[x.getDay()]})`}
+function tsFmt(ts){const x=new Date(ts);return `${x.getMonth()+1}/${x.getDate()} ${pad(x.getHours())}:${pad(x.getMinutes())}`}
+function monthDays(m){const[y,mo]=m.split('-').map(Number);const n=new Date(y,mo,0).getDate();return Array.from({length:n},(_,i)=>m+'-'+pad(i+1))}
+function shiftMonth(m,k){const[y,mo]=m.split('-').map(Number);const d=new Date(y,mo-1+k,1);return d.getFullYear()+'-'+pad(d.getMonth()+1)}
+function cleanName(s){return String(s||'').replace(/['"<>\\`|]/g,'').trim()}
+
+/* ---------- 페이지 안 확인창 (브라우저 팝업 대신) ---------- */
+function modal({msg,input,def,ok='확인',cancel}){return new Promise(res=>{const m=$('#modal');
+ m.innerHTML=`<div class="mbox"><div class="mmsg">${esc(msg).replace(/\n/g,'<br>')}</div>${input?`<input id="m_in" value="${esc(def||'')}" style="width:100%;margin-top:12px">`:''}<div class="fr" style="justify-content:flex-end;margin-top:16px">${cancel?`<button class="btn" id="m_no">${cancel}</button>`:''}<button class="btn pri" id="m_ok">${ok}</button></div></div>`;
+ m.style.display='flex';const inp=$('#m_in');if(inp){inp.focus();inp.select()}else $('#m_ok').focus();
+ const close=v=>{m.style.display='none';m.innerHTML='';document.removeEventListener('keydown',kh);res(v)};
+ const kh=e=>{if(e.key==='Escape')close(input?null:false);else if(e.key==='Enter')close(input?$('#m_in').value:true)};
+ document.addEventListener('keydown',kh);
+ $('#m_ok').onclick=()=>close(input?$('#m_in').value:true);if(cancel)$('#m_no').onclick=()=>close(input?null:false);})}
+const note=msg=>modal({msg});
+const ask=(msg,ok='확인')=>modal({msg,ok,cancel:'취소'});
+const askText=(msg,def)=>modal({msg,input:true,def,ok:'확인',cancel:'취소'});
+
+/* ---------- 기본 데이터 (2026년 11월 종이 근무표 기준) ---------- */
+function defaults(){
+ if(ONLINE)return blankDefaults();
+ 
+}
+
+const ONLINE=!!document.querySelector('meta[name="duty-online"]');
+function blankDefaults(){const m=TODAY.slice(0,7)+'-01';return{author:'',me:'',edited:TODAY,people:{},rot:{wd:[],d:[],n:[]},holidays:{},anchor:{date:m,wd:'',d:'',n:''},fixed:{},swaps:{},log:[],history:[],noDuty:[],notes:'',v:2,unitNum:'',unitName:''}}
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}
+function ME(){return ONLINE?(lsGet('dutyOnline_me')||''):S.me}
+function setMe(n){if(ONLINE){lsSet('dutyOnline_me',n||null);render()}else{S.me=n;save()}}
+const G={unlocked:!ONLINE,admin:!ONLINE,dirty:false,unit:null,unitKey:null,salt:null,adm:null,pub:null,file:null,scrolled:false};
+const canEdit=()=>!ONLINE||G.admin;
+let RESET_NOTE=false;
+function load(){try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);if(o&&o.rot&&o.people&&!(o.v>=2)){RESET_NOTE=true;return defaults()}if(o&&o.rot&&o.people){o.log=o.log||[];o.history=o.history||[];o.noDuty=o.noDuty||[];if(o.me==null)o.me='';return o}}}catch(e){}return defaults()}
+let S=ONLINE?blankDefaults():load();if(!ONLINE&&S.unitNum==null){const d=defaults();S.unitNum=d.unitNum;S.unitName=d.unitName}
+let month=TODAY.slice(0,7),pg='cal',mode='view',sel=[],nb=null;
+
+function save(){if(ONLINE){if(!G.admin){render();return}S.edited=TODAY;G.dirty=true;saveDraft();render();return}S.edited=TODAY;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('⚠ 브라우저 저장 실패 — [백업 저장]으로 파일을 꼭 저장하세요',1)}render()}
+function toast(m,bad){const t=$('#toast');t.textContent=m;t.className=bad?'':'ok';t.style.display='block';clearTimeout(toast._t);toast._t=setTimeout(()=>t.style.display='none',2600)}
+
+/* ---------- 공휴일 미리 넣기 (2026.4 개정: 노동절·제헌절 공휴일 포함) ---------- */
+const PRESET_VER=1;
+const PRESET_HOL={
+ '2026-12-25':'성탄절',
+ '2027-01-01':'신정','2027-02-06':'설날 연휴','2027-02-07':'설날','2027-02-08':'설날 연휴','2027-02-09':'대체공휴일(설날)','2027-03-01':'삼일절','2027-05-01':'노동절','2027-05-03':'대체공휴일(노동절)','2027-05-05':'어린이날','2027-05-13':'부처님오신날','2027-06-06':'현충일','2027-07-17':'제헌절','2027-07-19':'대체공휴일(제헌절)','2027-08-15':'광복절','2027-08-16':'대체공휴일(광복절)','2027-09-14':'추석 연휴','2027-09-15':'추석','2027-09-16':'추석 연휴','2027-10-03':'개천절','2027-10-04':'대체공휴일(개천절)','2027-10-09':'한글날','2027-10-11':'대체공휴일(한글날)','2027-12-25':'성탄절','2027-12-27':'대체공휴일(성탄절)',
+ '2028-01-01':'신정','2028-01-26':'설날 연휴','2028-01-27':'설날','2028-01-28':'설날 연휴','2028-03-01':'삼일절','2028-04-12':'국회의원선거일','2028-05-01':'노동절','2028-05-02':'부처님오신날','2028-05-05':'어린이날','2028-06-06':'현충일','2028-07-17':'제헌절','2028-08-15':'광복절','2028-10-02':'추석 연휴','2028-10-03':'추석·개천절','2028-10-04':'추석 연휴','2028-10-05':'대체공휴일','2028-10-09':'한글날','2028-12-25':'성탄절',
+ '2029-01-01':'신정','2029-02-12':'설날 연휴','2029-02-13':'설날','2029-02-14':'설날 연휴','2029-03-01':'삼일절','2029-05-01':'노동절','2029-05-05':'어린이날','2029-05-07':'대체공휴일(어린이날)','2029-05-20':'부처님오신날','2029-05-21':'대체공휴일(부처님오신날)','2029-06-06':'현충일','2029-07-17':'제헌절','2029-08-15':'광복절','2029-09-21':'추석 연휴','2029-09-22':'추석','2029-09-23':'추석 연휴','2029-09-24':'대체공휴일(추석)','2029-10-03':'개천절','2029-10-09':'한글날','2029-12-25':'성탄절',
+ '2030-01-01':'신정','2030-02-02':'설날 연휴','2030-02-03':'설날','2030-02-04':'설날 연휴','2030-02-05':'대체공휴일(설날)','2030-03-01':'삼일절','2030-05-01':'노동절','2030-05-05':'어린이날','2030-05-06':'대체공휴일(어린이날)','2030-05-09':'부처님오신날','2030-06-06':'현충일','2030-07-17':'제헌절','2030-08-15':'광복절','2030-09-11':'추석 연휴','2030-09-12':'추석','2030-09-13':'추석 연휴','2030-10-03':'개천절','2030-10-09':'한글날','2030-12-25':'성탄절'
+};
+function applyPreset(){if((S.presetVer||0)>=PRESET_VER)return;for(const d in PRESET_HOL)if(d>=S.anchor.date&&!has(S.holidays,d))S.holidays[d]=PRESET_HOL[d];S.presetVer=PRESET_VER}
+
+/* ---------- 순번 계산 ---------- */
+function isOff(s){const w=dow(s);return w===0||w===6||has(S.holidays,s)}
+function ndLast(q){return q.endDuty&&q.to>q.from?addD(q.to,-1):q.to}
+function ndOf(d){return (S.noDuty||[]).find(q=>d>=q.from&&d<=ndLast(q))}
+function slotsOf(s){return isOff(s)?['d','n']:['wd']}
+function inPeriod(p,d){return p.periods.find(q=>d>=q.from&&(!q.to||d<=q.to))}
+function eligible(name,d,t){const p=S.people[name];if(!p)return false;
+ if(p.start&&p.start[t]&&d<=p.start[t])return false;
+ if(p.out&&d>=p.out)return false;
+ return !inPeriod(p,d);}
+function generate(until){
+ const res={},ptr={},keyAt={},dateOf={},occ={wd:{},d:{},n:{}};
+ for(const t of ['wd','d','n']){const i=S.rot[t].indexOf(S.anchor[t]);ptr[t]=i<0?0:i}
+ let d=S.anchor.date,guard=0;
+ while(d<=until&&guard++<4000){const nd=ndOf(d);if(nd){res[d]={_nd:nd.reason||'훈련'};d=addD(d,1);continue}const r={};
+  for(const t of slotsOf(d)){const L=S.rot[t];let who=null;
+   const f=L.find(n=>S.people[n]&&S.people[n].start&&S.people[n].start[t]===d&&!(S.people[n].out&&d>=S.people[n].out));
+   if(f){who=f;if(L[ptr[t]]===f)ptr[t]=(ptr[t]+1)%L.length}
+   else{for(let k=0;k<L.length;k++){const n=L[(ptr[t]+k)%L.length];if(eligible(n,d,t)){who=n;ptr[t]=(ptr[t]+k+1)%L.length;break}}}
+   r[t]=who;
+   if(who){const c=occ[t][who]=(occ[t][who]||0)+1;const k=t+'|'+who+'|'+c;keyAt[d+'|'+t]=k;dateOf[k]=d}}
+  res[d]=r;d=addD(d,1)}
+ return {res,ptr,keyAt,dateOf};
+}
+/* 교대는 날짜가 아니라 "그 사람의 N번째 차례"에 붙어요 → 순번이 밀리면 교대도 사람을 따라 이동 */
+function genFull(){return generate(addD(S.anchor.date,550))}
+function keyOf(d,t){return d<S.anchor.date?null:(generate(d).keyAt[d+'|'+t]||null)}
+function chainsFor(dates){
+ dates=[...dates].sort();const last=dates[dates.length-1];
+ const G=last>=S.anchor.date?generate(last):{res:{},keyAt:{}};const out={};
+ for(const d of dates){
+  if(d<S.anchor.date){out[d]=S.fixed[d]?JSON.parse(JSON.stringify(S.fixed[d])):null}
+  else{const r=G.res[d]||{},o={};for(const t in r)if(t==='_nd')o._nd=r._nd;else o[t]=[r[t]||'(없음)',...(S.swaps[G.keyAt[d+'|'+t]]||[])];out[d]=o}
+ }
+ return out;
+}
+function finalOf(d,t){const c=chainsFor([d])[d];const ch=c&&c[t];return ch?ch[ch.length-1]:null}
+function swapDates(){const G=genFull(),o={};for(const k in S.swaps)o[k]=G.dateOf[k]||null;return o}
+function mutate(fn){const b=swapDates();if(fn()===false)return false;const a=swapDates();
+ const moved=Object.keys(b).filter(k=>k in a&&a[k]!==b[k]&&S.swaps[k]).map(k=>{const[t,p]=k.split('|');const arr=S.swaps[k];return a[k]?`${TN[t]} ${p} 차례 → ${arr[arr.length-1]} : ${b[k]?fmt(b[k]):'-'}에서 ${fmt(a[k])}로 이동`:`${TN[t]} ${p} 차례 → ${arr[arr.length-1]} : 해당 근무를 찾을 수 없어요 (교대 이력 확인)`});
+ save();if(moved.length)setTimeout(()=>note('ℹ 순번이 밀리면서 교대(→)도 사람을 따라 같이 옮겨졌어요.\n\n'+moved.join('\n')),50);return true}
+/* 확정·확정취소처럼 기준일이 바뀔 때 교대 키를 다시 맞춤 */
+function rekey(change){const R=genFull().dateOf;const kept=S.swaps;change();const G=genFull();const ns={};
+ for(const k in kept){const d=R[k],t=k.split('|')[0];if(d&&d<S.anchor.date)continue;const nk=d?G.keyAt[d+'|'+t]:null;ns[nk||k]=kept[k]}
+ S.swaps=ns;
+ S.log.forEach(e=>sides(e).forEach(x=>{if(!x.k)return;const d=R[x.k];if(!d)return;x.d=d;if(d<S.anchor.date)x.k=null;else{const nk=G.keyAt[d+'|'+x.t];if(nk)x.k=nk}}));
+ return G}
+function migrate(){if(S.v>=2)return;const G=genFull(),ns={};
+ for(const k in S.swaps){if(/^\d{4}-\d{2}-\d{2}\|(wd|d|n)$/.test(k)){const nk=G.keyAt[k];if(nk)ns[nk]=S.swaps[k]}else ns[k]=S.swaps[k]}
+ S.swaps=ns;S.log.forEach(e=>sides(e).forEach(x=>{if(!x.k&&x.d>=S.anchor.date){const nk=G.keyAt[x.d+'|'+x.t];if(nk)x.k=nk}}));S.v=2}
+
+/* ---------- 이름 색상 ---------- */
+function nameCls(n){const p=S.people[n];if(!p)return'';const ms=month+'-01',me=monthDays(month).pop();
+ if(p.out&&p.out<=me)return'c-out';
+ if(p.periods.some(q=>q.from<=me&&(!q.to||q.to>=ms)))return'c-ex';
+ if(p.join&&p.join>=addD(ms,-45)&&p.join<=me)return'c-new';return''}
+function statusTag(n){const c=nameCls(n);return c==='c-out'?'<span class="tag out">제외</span>':c==='c-ex'?'<span class="tag ex">공제·파견</span>':c==='c-new'?'<span class="tag new">신규</span>':'<span class="tag ok">근무</span>'}
+
+/* ---------- 교대 / 대근 / 취소 ---------- */
+function slotRef(d,t){return d<S.anchor.date?{d,t,k:null}:{d,t,k:keyOf(d,t)}}
+function refArr(x){if(x.k)return{arr:S.swaps[x.k]||[],min:0};const f=S.fixed[x.d];return{arr:(f&&f[x.t])||[],min:1}}
+function pushTo(x,name){if(x.k)(S.swaps[x.k]=S.swaps[x.k]||[]).push(name);else{const f=S.fixed[x.d]=S.fixed[x.d]||{};(f[x.t]=f[x.t]||['(없음)']).push(name)}}
+function topRef(x){const r=refArr(x);return r.arr.length>r.min?r.arr[r.arr.length-1]:null}
+function popRef(x){const r=refArr(x);if(r.arr.length<=r.min)return;r.arr.pop();if(x.k&&!r.arr.length)delete S.swaps[x.k]}
+function topOf(d,t){return topRef(slotRef(d,t))}
+function sides(e){return e.b?[e.a,e.b]:[e.a]}
+function curD(x,G){return x.k?((G||genFull()).dateOf[x.k]||null):x.d}
+function sd(x,G){const d=curD(x,G);return d?fmt(d):'<span style="color:var(--red)">근무 없음</span>'}
+function logText(e,G){return e.type==='swap'?`${sd(e.a,G)} ${TN[e.a.t]} <b>${esc(e.a.from)}</b> ⇄ ${sd(e.b,G)} ${TN[e.b.t]} <b>${esc(e.b.from)}</b>`:`${sd(e.a,G)} ${TN[e.a.t]} <b>${esc(e.a.from)}</b> → <b>${esc(e.a.to)}</b> 대근`}
+function logPlain(e){const G=genFull(),f=x=>{const d=curD(x,G);return d?fmt(d):'(근무 없음)'};return e.type==='swap'?`${f(e.a)} ${TN[e.a.t]} ${e.a.from} ⇄ ${f(e.b)} ${TN[e.b.t]} ${e.b.from}`:`${f(e.a)} ${TN[e.a.t]} ${e.a.from} → ${e.a.to} 대근`}
+function sameRef(x,r){return r.k?x.k===r.k:(!x.k&&x.d===r.d&&x.t===r.t)}
+function findLog(d,t){const r=slotRef(d,t),top=topRef(r);if(!top)return null;for(let i=S.log.length-1;i>=0;i--){const e=S.log[i];if(sides(e).some(x=>sameRef(x,r)&&x.to===top))return e}return null}
+async function cancelLog(id,skipConfirm){const e=S.log.find(x=>x.id===id);if(!e)return;
+ const blocked=sides(e).filter(x=>topRef(x)!==x.to);
+ if(blocked.length){
+  if(blocked.some(x=>refArr(x).arr.includes(x.to)))return note(`이 교대 뒤로 같은 근무에 다른 교대가 또 있어요.\n[교대 이력]에서 나중 교대를 먼저 취소해 주세요.`);
+  if(!await ask(`이 교대 내용이 근무표에 남아 있지 않아요.\n이력에서만 삭제할까요?`))return;
+  S.log=S.log.filter(x=>x.id!==id);save();return}
+ if(!skipConfirm&&!await ask(`이 ${e.type==='swap'?'교대':'대근'}를 취소할까요?\n\n${logPlain(e)}\n\n${e.type==='swap'?'두 근무 모두':'이 근무가'} 원래대로 돌아갑니다.`))return;
+ sides(e).forEach(popRef);S.log=S.log.filter(x=>x.id!==id);sel=[];save();toast((e.type==='swap'?'교대':'대근')+' 취소 — 원래대로 복구')}
+function doSwap(){const[a,b]=sel;const ra=slotRef(a.d,a.t),rb=slotRef(b.d,b.t);
+ if((a.d>=S.anchor.date&&!ra.k)||(b.d>=S.anchor.date&&!rb.k))return note('근무자가 없는 칸은 교대할 수 없어요.');
+ const pa=finalOf(a.d,a.t),pb=finalOf(b.d,b.t);if(pa===pb)return note('두 근무의 근무자가 같은 사람입니다.');
+ pushTo(ra,pb);pushTo(rb,pa);
+ S.log.push({id:Date.now(),ts:Date.now(),type:'swap',a:{...ra,from:pa,to:pb},b:{...rb,from:pb,to:pa}});
+ sel=[];save();toast(`교대 완료: ${pa} ⇄ ${pb}`)}
+function doReplace(){const s=sel[0],n=$('#bar_p').value;if(!n)return;const r=slotRef(s.d,s.t);
+ if(s.d>=S.anchor.date&&!r.k)return note('근무자가 없는 칸이에요.');
+ const from=finalOf(s.d,s.t);pushTo(r,n);
+ S.log.push({id:Date.now(),ts:Date.now(),type:'sub',a:{...r,from,to:n},b:null});sel=[];save();toast(`${fmt(s.d)} ${TN[s.t]} → ${n} 대근 지정`)}
+async function undoSel(){const s=sel[0];const e=findLog(s.d,s.t);
+ if(e)return await cancelLog(e.id);
+ if(!await ask(`${fmt(s.d)} ${TN[s.t]}의 마지막 변경(종이표에서 옮겨온 기록)을 지울까요?\n상대 근무가 있으면 그쪽도 따로 지워주세요.`))return;
+ popRef(slotRef(s.d,s.t));sel=[];save();toast('마지막 변경 삭제')}
+
+/* ---------- 화면 공통 ---------- */
+const IC={
+ cal:'<path d="M4 6h16v14H4zM4 10h16M9 3v4M15 3v4"/>',
+ log:'<path d="M7 7h11l-3-3M17 17H6l3 3"/>',
+ rot:'<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
+ ppl:'<path d="M16 19v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6M21 19v-1a4 4 0 0 0-3-3.8M16 4.2a3 3 0 0 1 0 5.6"/>',
+ new:'<path d="M15 19v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6M19 8v6M16 11h6"/>',
+ hol:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+ close:'<path d="M6 11V8a6 6 0 0 1 12 0v3M5 11h14v10H5z"/>',
+ me:'<path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/>',
+ nd:'<path d="M3 20h18M5 20 12 5l7 15M12 5V2M9.5 20 12 14l2.5 6"/>',
+ stat:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+ set:'<path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-2.9-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 15H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.9l-.1-.1A2 2 0 1 1 7 5.2l.1.1A1.7 1.7 0 0 0 10 4.1V4a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1"/>'
+};
+const ico=k=>`<svg class="i" viewBox="0 0 24 24">${IC[k]}</svg>`;
+const NAV=[['근무',[['cal','근무표'],['me','내 근무'],['log','교대 이력']]],['관리',[['rot','순번 관리'],['ppl','인원·공제·파견'],['new','전입자 추가'],['hol','휴일'],['nd','훈련(근무 없음)']]],['기타',[['close','월 마감(확정)'],['stat','통계·경고'],['set','설정·백업']]]];
+const TITLE={me:['내 근무','이름을 고르면 앞으로의 내 당직이 보여요'],cal:['근무표','이름을 누르면 체크돼요. 두 개 체크 → 교대, 한 개 체크 → 대근 지정·교대 취소'],log:['교대 이력','교대·대근을 기록 순서대로 보여줘요. [취소]를 누르면 두 근무 모두 원래대로 돌아가요'],rot:['순번 관리','평일 · 주말 주간 · 주말 야간 세 가지 순번을 따로 관리해요'],ppl:['인원·공제·파견','기간을 넣으면 그동안 순번에서 자동으로 빠지고, 끝나면 원래 자리로 복귀해요'],new:['전입자 추가','전입일만 넣으면 평일·주간·야간 첫 투입일을 자동으로 계산해요'],hol:['휴일','휴일을 넣으면 평일·주말 순번이 자동으로 다시 맞춰져요'],nd:['훈련(근무 없음)','훈련 기간엔 당직부관 근무를 비우고 순번을 그대로 밀어요. 종료일부터 다시 근무가 들어가요'],close:['월 마감(확정)','배포한 달을 고정해서 나중에 인원·순번이 바뀌어도 지난 근무가 그대로 남게 해요'],stat:['통계·경고','1인당 근무 횟수와 연속 근무 등 확인이 필요한 항목'],set:['설정·백업','작성자, 비고, 내 이름, 백업']};
+
+const VIEW_PAGES=['cal','me','log','stat'];
+let calView=(window.innerWidth||1200)<=760?'list':'grid';
+function render(){
+ document.documentElement.dataset.theme=theme();
+ if(!G.unlocked)return;
+ if(!canEdit()&&!VIEW_PAGES.includes(pg))pg='cal';
+ if(!canEdit()&&mode!=='view'){mode='view';sel=[]}
+ $('#bNum').textContent=S.unitNum||'';$('#bName').textContent=S.unitName||'';
+ if(ONLINE){$('#admBtn').style.display='';$('#admBtn').innerHTML=G.admin?'🔓 관리자 나가기':'🔒 관리자';$('#roleTag').style.display='';$('#roleTag').className='roleTag'+(G.admin?' adm':'');$('#roleTag').textContent=G.admin?'관리자':'보기 전용';$('#bakBtn').style.display=G.admin?'':'none'}
+ $('#themeBtn').innerHTML=theme()==='dark'?'☀ 주간 화면':'☾ 야간 화면';
+ const[y,m]=month.split('-');$('#mlabel').textContent=`${y}년 ${+m}월`;
+ const wc=warnCount();
+ $('#nav').innerHTML=NAV.map(([g,items])=>[g,items.filter(([k])=>canEdit()||VIEW_PAGES.includes(k))]).filter(([g,items])=>items.length).map(([g,items])=>`<div class="grp">${g}</div>`+items.map(([k,l])=>`<button class="${pg===k?'on':''}" onclick="goPage('${k}')">${ico(k)}${l}${k==='stat'&&wc?`<span class="badge">${wc}</span>`:''}${k==='log'&&S.log.length?`<span class="badge b">${S.log.length}</span>`:''}</button>`).join('')).join('');
+ renderToday();
+ const[tt,td]=TITLE[pg];$('#navCur').textContent=tt;
+ const dtd=pg==='cal'&&!canEdit()?'이름 옆 파란 →는 근무자끼리 교대한 거예요':td;
+ const viewSeg=pg==='cal'?`<div class="seg noprint"><button class="${calView==='grid'?'on':''}" onclick="calView='grid';render()">표</button><button class="${calView==='list'?'on':''}" onclick="calView='list';G.scrolled=false;render()">목록</button></div>`:'';
+ const editSeg=pg==='cal'&&canEdit()?`<div class="seg noprint"><button class="${mode==='view'?'on':''}" onclick="setMode('view')">보기</button><button class="${mode==='swap'?'on sw':''}" onclick="setMode('swap')">☑ 교대</button><button class="${mode==='hol'?'on':''}" onclick="setMode('hol')">휴일 지정</button></div>`:'';
+ const banner=ONLINE&&G.admin&&G.dirty?`<div class="dirty noprint">⚠ <span><b>게시하지 않은 변경</b>이 있어요. 게시해야 다른 사람 화면에 반영돼요.</span><span style="flex:1"></span><button class="btn sm pri" onclick="publish()">게시</button><button class="btn sm" onclick="discardDraft()">변경 취소</button></div>`:'';
+ $('#main').innerHTML=`${banner}<div class="ph"><div><h1>${tt}</h1><p>${dtd}</p></div><span class="sp"></span>${viewSeg}${editSeg}</div><div class="panel">${PAGES[pg]()}</div>`;
+ if(pg==='cal'&&calView==='list'&&!G.scrolled&&month===TODAY.slice(0,7)){G.scrolled=true;const t=document.getElementById('lrToday');if(t)setTimeout(()=>t.scrollIntoView({block:'center'}),0)}
+ renderBar();
+}
+function toggleNav(){$('#side').classList.toggle('open')}
+function goPage(k){pg=k;const sd=$('#side');if(sd)sd.classList.remove('open');if(k!=='cal'){mode='view';sel=[]}render();window.scrollTo(0,0)}
+function setMode(m){mode=m;sel=[];if(pg!=='cal')pg='cal';render()}
+function go(k){month=shiftMonth(month,k);if(mode!=='swap')sel=[];render()}
+function goToday(){month=TODAY.slice(0,7);if(mode!=='swap')sel=[];render()}
+function theme(){try{return localStorage.getItem(THEME_KEY)||'light'}catch(e){return'light'}}
+function toggleTheme(){try{localStorage.setItem(THEME_KEY,theme()==='dark'?'light':'dark')}catch(e){}render()}
+function renderToday(){
+ const tm=addD(TODAY,1),C=chainsFor([TODAY,tm]);
+ const line=(d,lab)=>{const o=C[d];if(!o)return `<div class="row2"><span>${lab}</span><b>-</b></div>`;if(o._nd)return `<div class="row2"><span>${lab}</span><b>${esc(o._nd)} · 근무 없음</b></div>`;return['wd','d','n'].filter(t=>o[t]).map(t=>`<div class="row2"><span>${lab} ${TN[t]}</span><b>${esc(o[t][o[t].length-1])}</b></div>`).join('')};
+ let me='';
+ if(ME()){const days=[];for(let i=0;i<90;i++)days.push(addD(TODAY,i));const C2=chainsFor(days);let nx=null;
+  for(const d of days){const o=C2[d];if(!o)continue;for(const t of ['wd','d','n'])if(o[t]&&o[t][o[t].length-1]===ME()){nx={d,t};break}if(nx)break}
+  me=`<div class="me">내 다음 근무 · ${esc(ME())}<br><b>${nx?`${fmt(nx.d)} ${TN[nx.t]}${nx.d===TODAY?' (오늘)':''}`:'90일 내 없음'}</b></div>`}
+ else me=`<div class="me"><a href="#" onclick="goPage('me');return false" style="color:var(--accent)">내 이름 설정</a>하면 다음 근무를 알려줘요</div>`;
+ $('#todayCard').innerHTML=`<h5>오늘 ${fmt(TODAY)}</h5>${line(TODAY,'오늘')}${line(tm,'내일')}${me}`;
+}
+
+/* ---------- 근무표 ---------- */
+function slotHtml(d,t,chain){
+ const lab=t==='d'?'주:':t==='n'?'야:':'';const isSel=sel.some(s=>s.d===d&&s.t===t);const fin=chain[chain.length-1];
+ let h=`<div class="slot${isSel?' sel':''}${ME()&&fin===ME()?' mine':''}" data-d="${d}" data-t="${t}">`;
+ if(mode==='swap')h+=`<span class="ck">${isSel?'☑':'☐'}</span>`;
+ h+=`<div class="ln${chain.length===1?' fin':''}">${lab}${esc(chain[0])}</div>`;
+ for(let i=1;i<chain.length;i++)h+=`<div class="ln chg${i===chain.length-1?' fin':''}">-&gt;${esc(chain[i])}</div>`;
+ return h+'</div>';
+}
+function slotList(d,t,chain){const isSel=sel.some(s=>s.d===d&&s.t===t),fin=chain[chain.length-1];
+ return `<div class="slot lsl${isSel?' sel':''}${ME()&&fin===ME()?' mine':''}" data-d="${d}" data-t="${t}">${mode==='swap'?`<span>${isSel?'☑':'☐'}</span>`:''}<span class="lt">${TN[t]}</span>${chain.length>1?`<span class="o">${esc(chain[0])}</span>→<span class="f c">${esc(fin)}</span>`:`<span class="f">${esc(fin)}</span>`}</div>`}
+function pageCalList(){const days=monthDays(month),C=chainsFor(days);
+ const rows=days.map(d=>{const w=dow(d),hol=has(S.holidays,d),o=C[d];
+  const cls=['lrow',(w===0||hol)?'sun':(w===6?'sat':''),d<S.anchor.date?'fixed':'',d===TODAY?'isToday':''].join(' ');
+  let b=hol&&S.holidays[d]?`<div class="lhn">${esc(S.holidays[d])}</div>`:'';
+  if(!o)b+='<div class="lnd">-</div>';else if(o._nd)b+=`<div class="lnd"><b>${esc(o._nd)}</b> · 근무 없음</div>`;else['wd','d','n'].forEach(t=>{if(o[t])b+=slotList(d,t,o[t])});
+  return `<div class="${cls}"${d===TODAY?' id="lrToday"':''}><div class="ld" data-d="${d}"><b>${+d.slice(8)}</b>${DOW[w]}</div><div class="lb">${b}</div></div>`}).join('');
+ return `<div class="card" style="padding:6px 10px"><div class="lst m-${mode}" id="cal">${rows}</div></div>${S.notes?`<div class="card"><h3 style="font-size:14px">비고</h3><div style="white-space:pre-wrap;color:var(--sub);font-size:13.5px;line-height:1.7">${esc(S.notes)}</div></div>`:''}`}
+function pageCal(){
+ if(calView==='list')return pageCalList();
+ const days=monthDays(month),C=chainsFor(days),m=+month.slice(5);
+ let h=DOW.map((x,i)=>`<div class="hd${i===0?' sun':''}">${x}</div>`).join('');
+ for(let i=0;i<dow(days[0]);i++)h+='<div class="emp"></div>';
+ days.forEach(d=>{const w=dow(d),hol=has(S.holidays,d);
+  const cls=['cell',(w===0||hol)?'sun':(w===6?'sat':''),d<S.anchor.date?'fixed':'',d===TODAY?'isToday':''].join(' ');
+  h+=`<div class="${cls}"><div class="dbar" data-d="${d}">${+d.slice(8)}${hol&&S.holidays[d]?`<span class="hn">${esc(S.holidays[d])}</span>`:''}</div><div class="slots">`;
+  const o=C[d];if(!o)h+='<div class="blank">-</div>';else if(o._nd)h+=`<div class="nd"><b>${esc(o._nd)}</b><small>근무 없음</small></div>`;else['wd','d','n'].forEach(t=>{if(o[t])h+=slotHtml(d,t,o[t])});
+  h+='</div></div>'});
+ const tail=(7-(dow(days[0])+days.length)%7)%7;for(let i=0;i<tail;i++)h+='<div class="emp"></div>';
+ const rl=['wd','d','n'].map(t=>`<div><span class="cnt">{${S.rot[t].length}명}</span>${TL[t]} : ${S.rot[t].map(n=>`<span class="${nameCls(n)}">${esc(n)}</span>`).join(', ')}</div>`).join('<hr>');
+ return `<div class="sheetHint noprint" style="display:none;font-size:12.5px;color:var(--sub);margin:0 0 6px">↔ 근무표는 좌우로 밀어서 보세요</div><div class="card"><div class="sheetWrap"><div class="sheet m-${mode}" id="sheet">
+  <h2>${m}월 당직 부관 근무표</h2>
+  <div class="meta"><span>작성자 : ${esc(S.author)}</span><span>수정일 : ${S.edited?editedFmt(S.edited):'-'}</span><span>기존, <span class="c-ex">공제</span>, <span class="c-new">신규</span>, <span style="color:#c62828">제외</span></span></div>
+  <div class="cal" id="cal">${h}</div><div class="rotlines">${rl}</div><div class="notes">${esc(S.notes)}</div>
+ </div></div>
+ <div class="fr noprint" style="margin-top:12px"><button class="btn pri" onclick="copyForHwp()">한글로 복사</button><button class="btn" onclick="saveForHwp()">한글용 파일 저장</button><span class="hint" style="margin:0">[한글로 복사] 후 한글에서 Ctrl+V → 표·색상 그대로 붙어요. 안 되면 [한글용 파일 저장] 후 한글에서 열어 HWP로 저장하세요.</span></div></div>`;
+}
+document.addEventListener('click',e=>{
+ if(pg!=='cal'||!e.target.closest('#cal')||!canEdit())return;
+ const db=e.target.closest('.dbar,.ld'),sl=e.target.closest('.slot');
+ if(mode==='hol'){if(db)toggleHoliday(db.dataset.d);return}
+ if(!sl)return;
+ if(mode!=='swap'){mode='swap';sel=[]}
+ const k={d:sl.dataset.d,t:sl.dataset.t};const i=sel.findIndex(s=>s.d===k.d&&s.t===k.t);
+ if(i>=0)sel.splice(i,1);else{sel.push(k);if(sel.length>2)sel.shift()}
+ render();
+});
+function renderBar(){
+ const b=$('#bar');
+ if(pg!=='cal'||mode==='view'){b.style.display='none';return}
+ b.style.display='flex';
+ if(mode==='hol'){b.innerHTML=`<span class="k">휴일 지정</span><span>노란 날짜 줄을 누르면 휴일 지정/해제 — 근무는 자동으로 다시 맞춰져요</span><span style="flex:1"></span><button class="btn sm" onclick="setMode('view')">끝내기</button>`;return}
+ if(!sel.length){b.innerHTML=`<span class="k">교대 모드</span><span>근무 두 개를 체크하면 교대, 한 개만 체크하면 대근 지정·교대 취소</span><span style="flex:1"></span><button class="btn sm" onclick="setMode('view')">끝내기</button>`;return}
+ const C=chainsFor([...new Set(sel.map(s=>s.d))]);
+ const fin=s=>{const c=C[s.d]&&C[s.d][s.t];return c?c[c.length-1]:'?'};
+ const lab=s=>`${fmt(s.d)} ${TN[s.t]} <b class="k">${esc(fin(s))}</b>`;
+ if(sel.length===1){const s=sel[0],cur=fin(s),e=findLog(s.d,s.t),hasTop=!!topOf(s.d,s.t);
+  const opts=Object.keys(S.people).filter(n=>n!==cur&&!(S.people[n].out&&S.people[n].out<=s.d)).map(n=>`<option>${esc(n)}</option>`).join('');
+  b.innerHTML=`<span>☑ ${lab(s)}</span><span style="color:#9AA3AE">대근자</span><select id="bar_p">${opts}</select><button class="btn sm pri" onclick="doReplace()">대근 지정</button>${hasTop?`<button class="btn sm danger" onclick="undoSel()">↶ ${e?(e.type==='swap'?'교대 취소':'대근 취소'):'마지막 변경 삭제'}</button>`:''}<span class="hint">하나 더 체크하면 맞교대 · 다른 달은 위 ▶로 넘어가서 체크</span><span style="flex:1"></span><button class="btn sm" onclick="sel=[];render()">선택 해제</button><button class="btn sm" onclick="setMode('view')">끝내기</button>`;
+ }else{
+  b.innerHTML=`<span>☑ ${lab(sel[0])}</span><span>⇄</span><span>☑ ${lab(sel[1])}</span><button class="btn sm pri" onclick="doSwap()">교대 실행</button><span style="flex:1"></span><button class="btn sm" onclick="sel=[];render()">선택 해제</button><button class="btn sm" onclick="setMode('view')">끝내기</button>`;
+ }
+}
+
+/* ---------- 교대 이력 ---------- */
+function pageLog(){
+ if(!S.log.length)return `<div class="card"><div class="empty-st">아직 교대 기록이 없어요.<br>근무표에서 이름 두 개를 체크해 교대해 보세요.</div></div>`;
+ const G=genFull();
+ const rows=[...S.log].reverse().map(e=>{const ok=sides(e).every(x=>topRef(x)===x.to);const lost=sides(e).some(x=>x.k&&!G.dateOf[x.k]);
+  return `<tr><td>${tsFmt(e.ts)}</td><td><span class="tag ${e.type==='swap'?'sw':'new'}">${e.type==='swap'?'교대':'대근'}</span></td><td>${logText(e,G)}${lost?' <span class="tag out">근무를 찾을 수 없음</span>':ok?'':' <span class="tag out">뒤에 다른 변경 있음</span>'}</td><td style="text-align:right">${canEdit()?`<button class="btn sm danger" onclick="cancelLog(${e.id})">↶ 취소</button>`:''}</td></tr>`}).join('');
+ return `<div class="card"><table class="t"><tr><th style="width:110px">기록 시각</th><th style="width:70px">구분</th><th>내용 (현재 날짜 기준)</th><th style="width:90px"></th></tr>${rows}</table>
+ <p class="hint">교대는 <b>사람끼리 바꾼 차례</b>를 따라가요. 휴일·훈련으로 순번이 밀리면 교대도 그 사람 차례와 함께 다른 날짜로 옮겨지고, 위 날짜도 바뀐 날짜로 보여요.<br>같은 근무에 교대가 여러 번 있으면 <b>나중 것부터</b> 취소해야 해요. 종이표에서 옮겨온 11월 기록은 근무표에서 체크한 뒤 [마지막 변경 삭제]로 지울 수 있어요.</p></div>`;
+}
+
+/* ---------- 휴일 ---------- */
+async function holCheck(d){
+ if(d<S.anchor.date){note('🔒 '+fmt(d)+'은(는) 확정된 날짜예요.\n'+(S.history.length?'[월 마감] 메뉴에서 [마지막 확정 취소]를 누른 뒤 바꿔주세요.':'11/14까지는 종이 근무표 그대로 고정돼 있어서 휴일을 바꿀 수 없어요. '+fmt(S.anchor.date)+' 이후 날짜만 바꿀 수 있어요.'));return false}
+ return true}
+async function setHoliday(d,nm){if(!await holCheck(d))return;if(mutate(()=>{S.holidays[d]=nm}))toast(fmt(d)+' 휴일 지정 — 근무 자동 재배정')}
+async function toggleHoliday(d){
+ if(has(S.holidays,d)){if(!await ask(fmt(d)+' 휴일을 해제할까요?'))return;if(!await holCheck(d))return;if(mutate(()=>{delete S.holidays[d]}))toast(fmt(d)+' 휴일 해제 — 근무 자동 재배정');return}
+ if(d<S.anchor.date){await holCheck(d);return}
+ const w=dow(d);const nm=await askText(fmt(d)+(w===0||w===6?' (주말) — 휴일 이름만 표시해요.':' 을(를) 휴일로 지정해요.\n평일 순번에서 빠지고 주말 주간·야간으로 바뀌어요.')+'\n\n휴일 이름 (비워도 됨)','');if(nm===null)return;setHoliday(d,nm.trim());
+}
+async function addHol(){const d=$('#h_d').value;if(!d)return note('날짜를 선택하세요');if(has(S.holidays,d))return note('이미 휴일입니다');setHoliday(d,$('#h_n').value.trim())}
+let holYear=null;
+function pageHol(){const all=Object.keys(S.holidays).sort();const years=[...new Set(all.map(d=>d.slice(0,4)))];const y=holYear&&years.includes(holYear)?holYear:(years.includes(month.slice(0,4))?month.slice(0,4):years[0]);const ks=all.filter(d=>d.startsWith(y));
+ const wk=ks.filter(d=>{const w=dow(d);return w>0&&w<6}).length;
+ return `<div class="card"><h3>휴일 추가</h3><p class="desc">그날은 평일 순번에서 빠지고 주말 주간·야간 순번으로 근무해요. 2030년까지 법정 공휴일·대체공휴일은 미리 넣어뒀어요. 재량휴무·선거일 등은 여기서 추가하세요.</p>
+ <div class="fr"><label>날짜</label><input type="date" id="h_d"><label>이름</label><input id="h_n" placeholder="예: 재량휴무" size="12"><button class="btn pri" onclick="addHol()">휴일 추가</button><button class="btn" onclick="setMode('hol')">달력에서 클릭으로 지정</button></div></div>
+ <div class="card"><div class="fr" style="margin-top:0"><h3 style="margin:0">휴일 목록</h3><span style="flex:1"></span><div class="seg">${years.map(x=>`<button class="${x===y?'on':''}" onclick="holYear='${x}';render()">${x}</button>`).join('')}</div></div>
+ <p class="desc">${y}년 ${ks.length}일 · 평일에 걸린 날 ${wk}일</p>
+ <table class="t"><tr><th>날짜</th><th>이름</th><th></th></tr>${ks.map(d=>`<tr><td>${d} (${DOW[dow(d)]})</td><td>${esc(S.holidays[d])||'-'}</td><td style="text-align:right">${d<S.anchor.date?'<span class="tag ok">🔒 확정</span>':`<button class="btn sm danger" onclick="toggleHoliday('${d}')">삭제</button>`}</td></tr>`).join('')}</table>
+ <p class="hint">공휴일은 인사혁신처 「관공서의 공휴일에 관한 규정」(2026년 노동절·제헌절 추가)과 한국천문연구원 월력 기준으로 넣었어요. 선거일처럼 나중에 정해지는 날은 발표되면 직접 추가해 주세요.</p></div>`;
+}
+/* ---------- 순번 관리 ---------- */
+function mvRot(t,i,k){const L=S.rot[t],j=i+k;if(j<0||j>=L.length)return;mutate(()=>{[L[i],L[j]]=[L[j],L[i]]})}
+async function rmRot(t,i){const L=S.rot[t],n=L[i];
+ if(!await ask(`${n}을(를) ${TN[t]} 순번에서 뺄까요?\n(파견·교육처럼 잠깐 빠지는 경우엔 [인원·공제·파견]에서 기간을 넣는 게 좋아요)`))return;
+ mutate(()=>{if(S.anchor[t]===n)S.anchor[t]=L.length>1?L[(i+1)%L.length]:'';L.splice(i,1)})}
+function addRot(t){const n=$('#add_'+t).value;if(!n)return;mutate(()=>{S.rot[t].push(n);if(!S.anchor[t])S.anchor[t]=n})}
+function setAnchor(t,n){mutate(()=>{S.anchor[t]=n})}
+function pageRot(){
+ let h=`<div class="grid3">`;
+ for(const t of ['wd','d','n']){const L=S.rot[t];const others=Object.keys(S.people).filter(n=>!L.includes(n));
+  h+=`<div class="card"><h3>${TL[t]}</h3><p class="desc">${L.length}명 · <span class="nx">다음</span> = ${fmt(S.anchor.date)}부터 가장 먼저 돌아오는 사람</p>`;
+  L.forEach((n,i)=>{h+=`<div class="ri"><span class="no">${i+1}</span><span class="${nameCls(n)}">${esc(n)}</span>${S.anchor[t]===n?'<span class="nx">다음</span>':''}<span class="btns"><button title="위로" onclick="mvRot('${t}',${i},-1)">↑</button><button title="아래로" onclick="mvRot('${t}',${i},1)">↓</button><button title="이 순번에서 빼기" onclick="rmRot('${t}',${i})">✕</button></span></div>`});
+  h+=`<div class="fr"><select id="add_${t}">${others.map(n=>`<option>${esc(n)}</option>`).join('')}</select><button class="btn sm" onclick="addRot('${t}')" ${others.length?'':'disabled'}>맨 뒤에 추가</button></div>`;
+  h+=`<div class="fr"><label>다음 근무자</label><select onchange="setAnchor('${t}',this.value)">${L.map(n=>`<option ${S.anchor[t]===n?'selected':''}>${esc(n)}</option>`).join('')}</select></div></div>`}
+ return h+`</div><p class="hint">순번을 바꾸면 ${fmt(S.anchor.date)} 이후(확정 안 된 날짜) 근무가 자동으로 다시 계산돼요.</p>`;
+}
+
+/* ---------- 인원 ---------- */
+function addPeriod(){const n=$('#pp_n').value,f=$('#pp_f').value,to=$('#pp_t').value,r=$('#pp_r').value.trim();
+ if(!f||!to)return note('시작일과 마지막 날을 모두 넣어주세요');if(to<f)return note('마지막 날이 시작일보다 빠릅니다');
+ if(mutate(()=>{S.people[n].periods.push({from:f,to:to,reason:r})}))toast(`${n} ${fmt(f)}~${fmt(to)} 공제·파견 등록`)}
+async function rmPeriod(n,i){if(!await ask(n+' 기간을 삭제할까요?'))return;mutate(()=>{S.people[n].periods.splice(i,1)})}
+async function editPeriod(n,i){const q=S.people[n].periods[i];const re=/^\d{4}-\d{2}-\d{2}$/;
+ const f=await askText(`${n} 공제·파견 시작일 (예: 2026-12-01)`,q.from);if(f===null)return;if(!re.test(f))return note('형식: YYYY-MM-DD');
+ const v=await askText(`${n} 마지막 날 (이 날까지 빠지고 다음 날 복귀, 예: 2026-12-18)`,q.to||'');if(v===null)return;if(!re.test(v))return note('형식: YYYY-MM-DD');if(v<f)return note('마지막 날이 시작일보다 빠릅니다');
+ mutate(()=>{q.from=f;q.to=v})}
+function setOut(){const n=$('#po_n').value,d=$('#po_d').value;if(!d)return note('제외 시작일을 넣어주세요');if(mutate(()=>{S.people[n].out=d}))toast(n+' '+fmt(d)+'부터 제외')}
+function unOut(n){mutate(()=>{S.people[n].out=null})}
+async function delPerson(n){if(!await ask(`${n}을(를) 명단과 모든 순번에서 완전히 삭제할까요?\n(확정된 지난 근무 기록의 이름은 남습니다)`))return;
+ mutate(()=>{for(const t of ['wd','d','n']){const L=S.rot[t],i=L.indexOf(n);if(i>=0){if(S.anchor[t]===n)S.anchor[t]=L.length>1?L[(i+1)%L.length]:'';L.splice(i,1)}}delete S.people[n]})}
+function pagePpl(){const names=Object.keys(S.people);const opts=names.map(n=>`<option>${esc(n)}</option>`).join('');
+ let h=`<div class="grid2"><div class="card"><h3>공제·파견 기간 추가</h3><p class="desc">시작일~마지막 날 동안 모든 순번에서 건너뛰고, 다음 날부터 원래 자리로 복귀해요.</p>
+  <div class="fr"><select id="pp_n">${opts}</select><input id="pp_r" placeholder="사유 (예: 파견, 중급반 교육)" style="flex:1;min-width:160px"></div>
+  <div class="fr"><label>시작</label><input type="date" id="pp_f"><label>마지막 날</label><input type="date" id="pp_t"><button class="btn pri" onclick="addPeriod()">추가</button></div></div>
+  <div class="card"><h3>전출·근무 제외</h3><p class="desc">제외일부터 모든 순번에서 빠져요. 명단에는 빨간 줄로 남아요.</p>
+  <div class="fr"><select id="po_n">${opts}</select><label>제외 시작일</label><input type="date" id="po_d"><button class="btn" onclick="setOut()">제외 처리</button></div></div></div>`;
+ h+=`<div class="card"><h3>인원 명단 <span class="tag ok">${names.length}명</span></h3><table class="t"><tr><th>이름</th><th>${+month.slice(5)}월 상태</th><th>공제·파견 기간</th><th>전입일</th><th>제외일</th><th></th></tr>`;
+ names.forEach(n=>{const p=S.people[n];
+  h+=`<tr><td class="${nameCls(n)}"><b>${esc(n)}</b></td><td>${statusTag(n)}</td><td>${p.periods.map((q,i)=>`<div style="display:flex;gap:6px;align-items:center;padding:2px 0">${q.from} ~ ${q.to||'<b style="color:var(--red)">마지막 날 없음</b>'} <span style="color:var(--sub)">${esc(q.reason||'')}</span><button class="btn sm" onclick="editPeriod('${n}',${i})">수정</button><button class="btn sm danger" onclick="rmPeriod('${n}',${i})">✕</button></div>`).join('')||'<span style="color:var(--faint)">-</span>'}</td><td>${p.join?p.join+(p.kind==='cho'?' <span class="tag new">초임</span>':''):'-'}</td><td>${p.out?p.out+` <button class="btn sm" onclick="unOut('${n}')">취소</button>`:'-'}</td><td style="text-align:right"><button class="btn sm danger" onclick="delPerson('${n}')">삭제</button></td></tr>`});
+ return h+'</table></div>';
+}
+
+/* ---------- 전입자 ---------- */
+function addM(s,k){const x=pd(s),day=x.getDate();const d=new Date(x.getFullYear(),x.getMonth()+k,1);const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();d.setDate(Math.min(day,last));return ds(d)}
+const KIND={normal:{lab:'일반 전입자',rule:'전입 14일 후',base:j=>addD(j,14)},cho:{lab:'초임하사',rule:'전입 3개월 후',base:j=>addM(j,3)}};
+let nbRows=[{name:'',kind:'normal',join:''}];
+function syncRows(){nbRows=nbRows.map((r,i)=>{const n=$('#nr_n'+i),k=$('#nr_k'+i),j=$('#nr_j'+i);return{name:n?n.value:r.name,kind:k?k.value:r.kind,join:j?j.value:r.join}})}
+function addRow(){syncRows();const l=nbRows[nbRows.length-1]||{};nbRows.push({name:'',kind:l.kind||'normal',join:l.join||''});nb=null;render();const el=$('#nr_n'+(nbRows.length-1));if(el)el.focus()}
+function delRow(i){syncRows();nbRows.splice(i,1);if(!nbRows.length)nbRows=[{name:'',kind:'normal',join:''}];nb=null;render()}
+function calcNb(){syncRows();const rows=nbRows.filter(r=>r.name.trim()||r.join);
+ if(!rows.length)return note('이름과 전입일을 넣어주세요');
+ const seen=new Set();
+ for(const r of rows){const n=cleanName(r.name);if(!n||!r.join)return note('모든 줄에 이름과 전입일을 넣어주세요');if(S.people[n])return note(n+'은(는) 이미 명단에 있는 이름이에요');if(seen.has(n))return note(n+' 이름이 두 번 들어갔어요');seen.add(n)}
+ const taken=new Set();Object.values(S.people).forEach(p=>{if(p.start)for(const t in p.start)taken.add(t+'|'+p.start[t])});
+ const free=(t,x)=>{let g=0;while((t==='wd'?isOff(x):!isOff(x))||taken.has(t+'|'+x)){x=addD(x,1);if(g++>400)break}taken.add(t+'|'+x);return x};
+ nb=rows.map(r=>{const name=cleanName(r.name),kind=r.kind,base=KIND[kind].base(r.join);let wd=base,g=0;while(isOff(wd)&&g++<60)wd=addD(wd,1);
+  let st=wd;while(dow(st)!==6)st=addD(st,1);const d0=addD(st,7),n0=addD(st,14);
+  const o={name,kind,join:r.join,base,wd:free('wd',wd),d:free('d',d0),n:free('n',n0)};o.moved=o.wd!==wd||o.d!==d0||o.n!==n0;return o});
+ render()}
+async function regNb(){const A=S.anchor.date;
+ nb.forEach((o,i)=>{o.wd=$('#nb_wd'+i).value;o.d=$('#nb_d'+i).value;o.n=$('#nb_nn'+i).value});
+ const used=new Set();Object.values(S.people).forEach(p=>{if(p.start)for(const t in p.start)used.add(t+'|'+p.start[t])});
+ for(const o of nb){
+  for(const[t,l]of[['wd','평일'],['d','주간'],['n','야간']]){const x=o[t];
+   if(!x||x<A)return note(`${o.name} ${l} 투입일은 ${fmt(A)} 이후여야 해요 (이전은 확정된 날짜)`);
+   if(t==='wd'?isOff(x):!isOff(x))return note(`${o.name} ${l} 투입일(${fmt(x)})이 ${t==='wd'?'주말/휴일이에요':'평일이에요 — 주말/휴일이어야 해요'}`);
+   if(used.has(t+'|'+x))return note(`${fmt(x)} ${l}에 첫 투입하는 사람이 겹쳐요. 날짜를 하나 바꿔주세요.`);used.add(t+'|'+x)}}
+ if(!await ask(`${nb.length}명을 등록할까요?\n\n`+nb.map(o=>`${o.name} (${KIND[o.kind].lab}) — 평일 ${fmt(o.wd)} · 주간 ${fmt(o.d)} · 야간 ${fmt(o.n)}`).join('\n')))return;
+ const list=nb.map(o=>o.name);
+ if(mutate(()=>{
+  nb.forEach(o=>{S.people[o.name]={periods:[],join:o.join,kind:o.kind,start:{wd:o.wd,d:o.d,n:o.n},out:null}});
+  for(const t of ['wd','d','n'])[...nb].sort((x,y)=>x[t]<y[t]?-1:1).forEach(o=>{const x=o[t];const r=generate(x).res[x];const X=r&&r[t];const L=S.rot[t];const i=X?L.indexOf(X):-1;if(i<0)L.push(o.name);else L.splice(i,0,o.name);if(!S.anchor[t])S.anchor[t]=o.name});
+ })){nb=null;nbRows=[{name:'',kind:'normal',join:''}];render();toast(list.join(', ')+' 등록 완료')}}
+function quickAdd(){const n=cleanName($('#qa_n').value);if(!n)return;if(S.people[n])return note('이미 있는 이름입니다');
+ if(mutate(()=>{S.people[n]={periods:[],join:null,start:null,out:null};['wd','d','n'].forEach(t=>{S.rot[t].push(n);if(!S.anchor[t])S.anchor[t]=n})}))toast(n+' 세 순번 맨 뒤에 추가')}
+function pageNew(){
+ const opt=k=>Object.entries(KIND).map(([v,o])=>`<option value="${v}" ${k===v?'selected':''}>${o.lab} (${o.rule})</option>`).join('');
+ let h=`<div class="card"><h3>전입자 등록 <span class="tag ok">여러 명 한 번에</span></h3><p class="desc">투입 기준일(일반 전입자: 전입 14일 후 · 초임하사: 전입 3개월 후)부터 가장 빠른 평일 → 2주차 토요일 주간 → 3번째 주말 야간 순서로 투입돼요.</p>
+ <table class="t"><tr><th style="width:44px">#</th><th>이름</th><th>구분</th><th>전입일</th><th style="width:60px"></th></tr>`;
+ nbRows.forEach((r,i)=>{h+=`<tr><td style="color:var(--faint)">${i+1}</td><td><input id="nr_n${i}" value="${esc(r.name)}" placeholder="이름" size="10"></td><td><select id="nr_k${i}">${opt(r.kind)}</select></td><td><input type="date" id="nr_j${i}" value="${r.join}"></td><td><button class="btn sm danger" onclick="delRow(${i})" title="이 줄 삭제">✕</button></td></tr>`});
+ h+=`</table><div class="fr"><button class="btn" onclick="addRow()">＋ 인원 추가</button><button class="btn pri" onclick="calcNb()">투입일 계산</button><span class="hint" style="margin:0">새 줄은 위 줄의 구분·전입일이 자동으로 채워져요</span></div>`;
+ if(nb){h+=`<table class="t" style="margin-top:14px"><tr><th>이름</th><th>구분 · 기준일</th><th>평일</th><th>주말 주간 (2주차 토)</th><th>주말 야간 (3번째 주말)</th></tr>`;
+  nb.forEach((o,i)=>{h+=`<tr><td><b>${esc(o.name)}</b>${o.moved?' <span class="tag sw" title="같은 날 첫 투입이 겹쳐 다음 날로 밀었어요">겹침 조정</span>':''}</td><td>${KIND[o.kind].lab}<br><span style="color:var(--sub);font-size:12.5px">전입 ${fmt(o.join)} → 기준 ${fmt(o.base)}</span></td>
+   <td><input type="date" id="nb_wd${i}" value="${o.wd}"><div style="font-size:12.5px;color:var(--sub)">${fmt(o.wd)}</div></td>
+   <td><input type="date" id="nb_d${i}" value="${o.d}"><div style="font-size:12.5px;color:var(--sub)">${fmt(o.d)}</div></td>
+   <td><input type="date" id="nb_nn${i}" value="${o.n}"><div style="font-size:12.5px;color:var(--sub)">${fmt(o.n)}</div></td></tr>`});
+  h+=`</table><p class="hint">※ 주차는 <b>첫 평일 투입 주의 토요일을 1주차</b>로 세었어요.<br>※ 여러 명이 같은 날 첫 투입이 되면 한 명은 <b>다음 같은 종류 근무일로 하루씩 밀어요</b> (평일→다음 평일, 주말→다음 주말·휴일). <span class="tag sw">겹침 조정</span> 표시된 사람은 날짜를 확인해 주세요.<br>※ 등록하면 각 투입일에 원래 서야 할 사람 <b>바로 앞자리</b>로 들어가고, 그 사람은 다음 차례로 밀려요.</p>
+  <div class="fr"><button class="btn pri" onclick="regNb()">${nb.length}명 일괄 등록</button><button class="btn" onclick="nb=null;render()">다시 입력</button></div>`}
+ h+=`</div><div class="card"><h3>규칙 없이 바로 추가</h3><p class="desc">전입 규칙이 필요 없는 경우에만 사용하세요. 파견 복귀는 [인원·공제·파견]의 기간으로 처리해요.</p><div class="fr"><label>이름</label><input id="qa_n" size="8"><button class="btn" onclick="quickAdd()">세 순번 맨 뒤에 추가</button></div></div>`;
+ return h;
+}
+/* ---------- 월 마감 ---------- */
+async function freezeUntil(until){
+ if(!await ask(`${fmt(S.anchor.date)} ~ ${fmt(until)} 근무를 확정(🔒)할까요?\n확정 후엔 순번·휴일·공제를 바꿔도 이 기간은 바뀌지 않습니다.\n(교대·교대 취소는 계속 가능, 필요하면 확정 취소 가능)`))return;
+ const snap={anchor:{...S.anchor},dates:[]};
+ rekey(()=>{const G=generate(until);
+  for(let d=S.anchor.date;d<=until;d=addD(d,1)){const day={},r=G.res[d]||{};
+   for(const t in r){if(t==='_nd'){day._nd=r._nd;continue}const k=G.keyAt[d+'|'+t];day[t]=[r[t]||'(없음)',...((k&&S.swaps[k])||[])];if(k)delete S.swaps[k]}
+   S.fixed[d]=day;snap.dates.push(d)}
+  S.anchor={date:addD(until,1),wd:S.rot.wd[G.ptr.wd]||'',d:S.rot.d[G.ptr.d]||'',n:S.rot.n[G.ptr.n]||''}});
+ S.history.push(snap);save();toast(fmt(until)+'까지 확정 완료')}
+async function unfreeze(){const s=S.history[S.history.length-1];if(!s)return;
+ if(!await ask(`${fmt(s.dates[0])} ~ ${fmt(s.dates[s.dates.length-1])} 확정을 취소할까요?\n이 기간은 다시 순번대로 자동 계산됩니다 (교대 기록은 유지).`))return;
+ const chains=[];s.dates.forEach(d=>{const f=S.fixed[d];if(f)for(const t in f)if(t!=='_nd'&&f[t].length>1)chains.push([d,t,f[t].slice(1)])});
+ S.history.pop();
+ const G=rekey(()=>{s.dates.forEach(d=>delete S.fixed[d]);S.anchor=s.anchor});
+ chains.forEach(([d,t,a])=>{const k=G.keyAt[d+'|'+t];if(k)S.swaps[k]=a});
+ S.log.forEach(e=>sides(e).forEach(x=>{if(!x.k&&x.d>=S.anchor.date){const k=G.keyAt[x.d+'|'+x.t];if(k)x.k=k}}));
+ save();toast('확정 취소 완료')}
+function pageClose(){const end=monthDays(month).pop();
+ return `<div class="card"><h3>현재 확정 기준일 · ${fmt(S.anchor.date)}</h3><p class="desc">이 날짜 <b>이전</b> 근무는 🔒 고정되어, 순번·휴일·공제를 바꿔도 변하지 않아요. 확정된 날짜도 교대와 교대 취소는 계속 할 수 있어요.</p>
+ <div class="fr">${end>=S.anchor.date?`<button class="btn pri" onclick="freezeUntil('${end}')">${+month.slice(5)}월 말일(${fmt(end)})까지 확정</button>`:'<span class="tag ok">이 달은 이미 확정됐어요</span>'}${S.history.length?'<button class="btn" onclick="unfreeze()">↶ 마지막 확정 취소</button>':''}</div>
+ <p class="hint">추천 순서: 근무표 완성 → 인쇄·배포 → 그 달 확정 → 다음 달로 이동</p></div>`;
+}
+
+/* ---------- 통계·경고 ---------- */
+function monthWarn(){
+ const days=monthDays(month),ext=[addD(days[0],-1),...days,addD(days[days.length-1],1)],C=chainsFor(ext);
+ const per=d=>{const o=C[d];if(!o)return[];return['wd','d','n'].filter(t=>o[t]).map(t=>({d,t,n:o[t][o[t].length-1]}))};
+ const cnt={},W=[];
+ days.forEach(d=>per(d).forEach(x=>{(cnt[x.n]=cnt[x.n]||{wd:0,d:0,n:0})[x.t]++}));
+ [addD(days[0],-1),...days].forEach(d=>{const a=per(d),b=per(addD(d,1));
+  const dd=a.find(x=>x.t==='d'),nn=a.find(x=>x.t==='n');
+  if(days.includes(d)&&dd&&nn&&dd.n===nn.n)W.push(`${fmt(d)} ${dd.n}: 같은 날 주간·야간 연속`);
+  a.forEach(x=>b.forEach(y=>{if(x.n===y.n&&x.n!=='(없음)')W.push(`${fmt(d)} → ${fmt(y.d)} ${x.n}: 이틀 연속 근무 (${TN[x.t]}→${TN[y.t]})`)}))});
+ days.forEach(d=>per(d).forEach(x=>{if(x.n==='(없음)'){W.push(`${fmt(d)} ${TN[x.t]}: 근무자 없음`);return}const p=S.people[x.n];if(!p)return;const q=inPeriod(p,d);
+  if(q)W.push(`${fmt(d)} ${x.n}: 공제·파견 기간(${q.reason||'사유 없음'})인데 근무 배정`);
+  if(p.out&&d>=p.out)W.push(`${fmt(d)} ${x.n}: 제외된 인원이 근무 배정`)}));
+ return{cnt,W:[...new Set(W)]};
+}
+function warnCount(){try{return monthWarn().W.length}catch(e){return 0}}
+let statRange=null;
+function firstMonth(){const ks=Object.keys(S.fixed).sort();return (ks[0]||S.anchor.date).slice(0,7)}
+function rangeStats(fm,tm){const days=[];for(let d=fm+'-01';d.slice(0,7)<=tm;d=addD(d,1))days.push(d);if(!days.length)return{cnt:{},n:0};
+ const C=chainsFor(days),cnt={};
+ days.forEach(d=>{const o=C[d];if(!o)return;['wd','d','n'].forEach(t=>{if(!o[t])return;const p=o[t][o[t].length-1];if(p==='(없음)')return;(cnt[p]=cnt[p]||{wd:0,d:0,n:0})[t]++})});
+ return{cnt,n:days.length}}
+function setStatRange(){const f=$('#st_f').value,t=$('#st_t').value;if(!f||!t)return note('시작 월과 끝 월을 골라주세요');if(t<f)return note('끝 월이 시작 월보다 빨라요');statRange=[f,t];render()}
+function pageStat(){const{cnt,W}=monthWarn();
+ const order=[...new Set([...S.rot.wd,...S.rot.d,...S.rot.n,...Object.keys(cnt)])];
+ let h=`<div class="grid2"><div class="card"><h3>${+month.slice(5)}월 1인당 근무 횟수</h3><p class="desc">교대·대근 반영 기준</p><table class="t"><tr><th>이름</th><th>평일</th><th>주간</th><th>야간</th><th>합계</th></tr>`;
+ order.forEach(n=>{const c=cnt[n]||{wd:0,d:0,n:0};h+=`<tr><td class="${nameCls(n)}">${esc(n)}</td><td>${c.wd}</td><td>${c.d}</td><td>${c.n}</td><td><b>${c.wd+c.d+c.n}</b></td></tr>`});
+ h+=`</table></div><div class="card"><h3>확인 필요 <span class="tag ${W.length?'out':'ok'}">${W.length}건</span></h3><p class="desc">교대로 생길 수 있어서 자동으로 막지 않고 알려만 줘요.</p>${W.length?`<ul class="warn">${W.map(w=>`<li>${esc(w)}</li>`).join('')}</ul>`:'<div class="empty-st">이상 없음 ✅</div>'}</div></div>`;
+ // 누적
+ const[fm,tm]=statRange||[firstMonth(),month];const R=rangeStats(fm,tm);
+ const names=[...new Set([...order,...Object.keys(R.cnt)])].filter(n=>R.cnt[n]||(S.people[n]&&!S.people[n].out));
+ const tot=n=>{const c=R.cnt[n]||{wd:0,d:0,n:0};return c.wd+c.d+c.n};
+ const act=names.filter(n=>tot(n)>0),avg=act.length?act.reduce((a,n)=>a+tot(n),0)/act.length:0;
+ const avgT=t=>act.length?act.reduce((a,n)=>a+((R.cnt[n]||{})[t]||0),0)/act.length:0;
+ const ym=m=>`${m.slice(0,4)}.${+m.slice(5)}`;
+ h+=`<div class="card"><div class="fr" style="margin-top:0;align-items:flex-end"><div><h3 style="margin:0">누적 근무 횟수</h3><p class="desc" style="margin:2px 0 0">${ym(fm)} ~ ${ym(tm)} · 교대·대근 반영 · 평균보다 많으면 <span style="color:var(--red);font-weight:700">빨강</span>, 적으면 <span style="color:var(--accent);font-weight:700">파랑</span></p></div><span style="flex:1"></span>
+  <label>기간</label><input type="month" id="st_f" value="${fm}"><span>~</span><input type="month" id="st_t" value="${tm}"><button class="btn sm pri" onclick="setStatRange()">조회</button>${statRange?'<button class="btn sm" onclick="statRange=null;render()">처음부터</button>':''}</div>
+  <table class="t" style="margin-top:10px"><tr><th>이름</th><th>평일</th><th>주간</th><th>야간</th><th>합계</th><th>평균 대비</th></tr>`;
+ names.sort((a,b)=>tot(b)-tot(a)).forEach(n=>{const c=R.cnt[n]||{wd:0,d:0,n:0},t=tot(n),df=t-avg;const col=df>=1.5?'var(--red)':df<=-1.5?'var(--accent)':'var(--sub)';
+  h+=`<tr><td class="${nameCls(n)}">${esc(n)}</td><td>${c.wd}</td><td>${c.d}</td><td>${c.n}</td><td><b>${t}</b></td><td style="color:${col};font-weight:700">${act.length?(df>0?'+':'')+df.toFixed(1):'-'}</td></tr>`});
+ h+=`<tr><td style="color:var(--sub)">평균</td><td style="color:var(--sub)">${avgT('wd').toFixed(1)}</td><td style="color:var(--sub)">${avgT('d').toFixed(1)}</td><td style="color:var(--sub)">${avgT('n').toFixed(1)}</td><td style="color:var(--sub)"><b>${avg.toFixed(1)}</b></td><td></td></tr></table>
+  <p class="hint">공제·파견·전입 시기에 따라 차이가 날 수 있어요. 미래 달을 넣으면 지금 순번 기준 예상 횟수로 계산돼요.</p></div>`;
+ return h;
+}
+/* ---------- 설정·백업 ---------- */
+function exportJSON(){const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='당직부관근무표_백업_'+TODAY.replace(/-/g,'')+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);toast('백업 파일 저장')}
+function importJSON(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{try{const o=JSON.parse(r.result);if(!o.rot||!o.people||!o.anchor)throw 0;if(!await ask('백업 파일로 현재 데이터를 덮어쓸까요?'))return;o.log=o.log||[];o.history=o.history||[];o.noDuty=o.noDuty||[];if(o.me==null)o.me='';S=o;migrate();applyPreset();save();toast('불러오기 완료')}catch(e){note('올바른 백업 파일이 아닙니다')}inp.value=''};r.readAsText(f)}
+async function resetAll(){if(!await ask('모든 데이터를 처음(11월 종이표 기준) 상태로 되돌릴까요?\n먼저 [백업 저장]을 권장합니다.'))return;S=defaults();migrate();applyPreset();save()}
+function saveSet(){S.author=$('#s_a').value.trim();S.unitNum=$('#s_un').value.trim();S.unitName=$('#s_uname').value.trim();S.notes=$('#s_n').value;if(!ONLINE)S.me=$('#s_me').value;save();toast('저장했습니다')}
+function pageSet(){const names=Object.keys(S.people);
+ return `<div class="grid2"><div class="card"><h3>근무표 설정</h3>
+  <div class="fr"><label style="width:70px">작성자</label><input id="s_a" value="${esc(S.author)}" style="flex:1"></div>
+  <div class="fr"><label style="width:70px">부대</label><input id="s_un" value="${esc(S.unitNum||'')}" style="width:70px" placeholder="숫자"><input id="s_uname" value="${esc(S.unitName||'')}" style="flex:1" placeholder="부대 이름"></div>
+  <div class="fr" ${ONLINE?'style="display:none"':''}><label style="width:70px">내 이름</label><select id="s_me"><option value="">(선택 안 함)</option>${names.map(n=>`<option ${S.me===n?'selected':''}>${esc(n)}</option>`).join('')}</select><span class="hint" style="margin:0">내 근무에 주황 테두리 + 다음 근무 표시</span></div>
+  <div style="font-size:13px;color:var(--sub);font-weight:600;margin-top:10px">하단 비고 (근무표 아래 파란 글씨로 출력)</div>
+  <textarea id="s_n" rows="5" style="width:100%;margin-top:6px">${esc(S.notes)}</textarea>
+  <div class="fr"><button class="btn pri" onclick="saveSet()">저장</button></div></div>
+  ${ONLINE?onlineSetCard():''}<div class="card"><h3>백업</h3><p class="desc">${ONLINE?'독립망 PC 파일과 주고받을 때 사용해요. ':''}데이터는 이 PC의 브라우저(크롬·엣지 각각 따로)에 저장돼요. 브라우저 기록을 지우거나 파일 이름·위치를 바꾸면 사라질 수 있으니 바뀔 때마다 백업해 두세요.</p>
+  <div class="fr"><button class="btn pri" onclick="exportJSON()">백업 파일 저장</button><button class="btn" onclick="document.getElementById('imp').click()">백업 불러오기</button></div>
+  ${ONLINE?'':'<div class="fr" style="margin-top:18px"><button class="btn danger" onclick="resetAll()">처음 상태로 초기화</button></div>'}</div></div>`;
+}
+
+/* ---------- 한글(HWP)로 내보내기 ---------- */
+function hwpHTML(){
+ const days=monthDays(month),C=chainsFor(days),m=+month.slice(5);
+ const F="font-family:'맑은 고딕';";
+ const B='border:1px solid #000;';
+ const cellCss=(bg)=>`${B}${F}width:14.28%;background:${bg};text-align:center;vertical-align:middle;font-size:11pt;padding:2px;`;
+ const nm=n=>{const c=nameCls(n);const col=c==='c-ex'?'#1F8A3B':c==='c-new'?'#2A56C6':c==='c-out'?'#C62828':'#000';return `<span style="color:${col}">${esc(n)}</span>`};
+ let h=`<table style="border-collapse:collapse;width:100%;${F}" border="1" cellspacing="0" cellpadding="2">`;
+ h+=`<tr><td colspan="7" style="${F}text-align:center;font-size:20pt;font-weight:bold;border:none;padding:6px">${m}월 당직 부관 근무표</td></tr>`;
+ h+=`<tr><td colspan="7" style="${F}text-align:center;font-size:9pt;border:none;padding-bottom:6px">작성자 : ${esc(S.author)} &nbsp;&nbsp;&nbsp; 수정일 : ${editedFmt(TODAY)} &nbsp;&nbsp;&nbsp; 기존, <span style="color:#1F8A3B">공제</span>, <span style="color:#2A56C6">신규</span>, <span style="color:#C62828">제외</span></td></tr>`;
+ h+='<tr>'+DOW.map((x,i)=>`<td style="${cellCss(i===0?'#F3C9C4':'#FFFFFF')}font-size:12pt">${x}</td>`).join('')+'</tr>';
+ const lead=dow(days[0]),cells=[...Array(lead).fill(null),...days];while(cells.length%7)cells.push(null);
+ for(let w=0;w<cells.length;w+=7){const wk=cells.slice(w,w+7);
+  h+='<tr>'+wk.map(d=>`<td style="${cellCss('#F6D84A')}">${d?+d.slice(8):''}</td>`).join('')+'</tr>';
+  h+='<tr>'+wk.map((d,i)=>{if(!d)return `<td style="${cellCss(i===6?'#8CCAF0':i===0?'#F3C9C4':'#FFFFFF')}height:70px"></td>`;
+   const hol=has(S.holidays,d),bg=(i===0||hol)?'#F3C9C4':i===6?'#8CCAF0':'#FFFFFF';const o=C[d]||{};
+   if(o._nd)return `<td style="${cellCss('#E6E6E6')}height:70px"><b>${esc(o._nd)}</b><br><span style="font-size:9pt">(근무 없음)</span></td>`;
+   const parts=['wd','d','n'].filter(t=>o[t]).map(t=>{const ch=o[t],lab=t==='d'?'주:':t==='n'?'야:':'';return lab+esc(ch[0])+ch.slice(1).map(x=>`<br><span style="color:#2A56C6">-&gt;${esc(x)}</span>`).join('')});
+   return `<td style="${cellCss(bg)}height:70px">${parts.join('<br>')}</td>`}).join('')+'</tr>';
+ }
+ const rl=['wd','d','n'].map(t=>`<span style="color:#C0392B">{${S.rot[t].length}명}</span>${TL[t]} : ${S.rot[t].map(nm).join(', ')}`).join('<br>------------------------------------------------<br>');
+ h+=`<tr><td colspan="7" style="${B}${F}text-align:center;font-size:10pt;padding:6px">${rl}</td></tr>`;
+ h+=`<tr><td colspan="7" style="${B}${F}color:#2A56C6;font-size:11pt;padding:6px">${esc(S.notes).replace(/\n/g,'<br>')}</td></tr>`;
+ return h+'</table>';
+}
+function copyForHwp(){const html=hwpHTML();
+ const done=()=>toast('복사 완료 — 한글에서 Ctrl+V 하세요');
+ const fallback=()=>{const div=document.createElement('div');div.contentEditable='true';div.style.cssText='position:fixed;left:-9999px;top:0;background:#fff';div.innerHTML=html;document.body.appendChild(div);
+  const r=document.createRange();r.selectNodeContents(div);const s=window.getSelection();s.removeAllRanges();s.addRange(r);
+  let ok=false;try{ok=document.execCommand('copy')}catch(e){}s.removeAllRanges();div.remove();ok?done():note('복사가 막혔어요. [한글용 파일 저장]을 사용해 주세요.')};
+ try{if(navigator.clipboard&&window.ClipboardItem){navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([document.createElement('div').textContent||''],{type:'text/plain'})})]).then(done,fallback);return}}catch(e){}
+ fallback()}
+function saveForHwp(){const m=+month.slice(5);
+ const doc=`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>${m}월 당직 부관 근무표</title></head><body>${hwpHTML()}</body></html>`;
+ const blob=new Blob(['﻿'+doc],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${month.slice(0,4)}년_${m}월_당직부관_근무표(한글용).html`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);toast('저장 완료 — 한글에서 [파일 열기]로 여세요')}
+
+/* ---------- 훈련(근무 없음) ---------- */
+function ndPreview(){const f=$('#nd_f').value,t=$('#nd_t').value,e=$('#nd_e').checked,el=$('#nd_pv');if(!el)return;
+ if(!f||!t){el.innerHTML='시작일과 종료일을 넣으면 근무 없는 날이 표시돼요.';return}
+ if(t<f){el.innerHTML='<span style="color:var(--red)">종료일이 시작일보다 빨라요</span>';return}
+ const q={from:f,to:t,endDuty:e},L=ndLast(q);
+ el.innerHTML=`근무 없음: <b>${fmt(f)}${L>f?' ~ '+fmt(L):''}</b> (${Math.round((pd(L)-pd(f))/864e5)+1}일)`+(e&&t>f?` · <b style="color:var(--green)">${fmt(t)} 종료일부터 근무 투입</b>`:'')+(e&&t===f?' · <span style="color:var(--amber)">하루짜리 훈련이라 그날은 근무 없음으로 처리해요</span>':'')}
+async function addNd(){const f=$('#nd_f').value,t=$('#nd_t').value,e=$('#nd_e').checked,r=$('#nd_r').value.trim()||'훈련';
+ if(!f||!t)return note('훈련 시작일과 종료일을 넣어주세요');if(t<f)return note('종료일이 시작일보다 빨라요');
+ if(f<S.anchor.date)return note(`🔒 ${fmt(f)}은(는) 확정된 날짜예요. ${fmt(S.anchor.date)} 이후 날짜만 바꿀 수 있어요.`);
+ const q={from:f,to:t,endDuty:e,reason:r},L=ndLast(q);
+ if((S.noDuty||[]).some(x=>!(L<x.from||f>ndLast(x))))return note('이미 등록된 훈련 기간과 겹쳐요. 기존 기간을 지우고 다시 넣어주세요.');
+ if(mutate(()=>{S.noDuty.push(q);S.noDuty.sort((a,b)=>a.from<b.from?-1:1)}))toast(`${r} 등록 — ${fmt(f)}${L>f?'~'+fmt(L):''} 근무 없음, 순번은 뒤로 밀려요`)}
+async function rmNd(i){const q=S.noDuty[i];if(q.from<S.anchor.date)return note('🔒 확정된 날짜가 포함돼 있어 지울 수 없어요.');
+ if(!await ask(`${q.reason} (${fmt(q.from)}~${fmt(q.to)})를 지울까요?\n그 기간에 다시 순번대로 근무가 들어가요.`))return;
+ mutate(()=>{S.noDuty.splice(i,1)});toast('훈련 기간 삭제 — 원래 순번으로 복구')}
+function pageNd(){
+ let h=`<div class="card"><h3>훈련 기간 추가</h3><p class="desc">기간 동안 당직부관 근무가 없고, 그 날짜에 서야 했던 사람부터 <b>훈련 뒤로 순서대로 밀려요</b>. 평일·주말 순번 모두 같아요.</p>
+ <div class="fr"><label>사유</label><input id="nd_r" placeholder="예: 철야훈련" style="flex:1;min-width:160px"></div>
+ <div class="fr"><label style="width:64px">훈련 시작</label><input type="date" id="nd_f" oninput="ndPreview()" onchange="ndPreview()"></div>
+ <div class="fr"><label style="width:64px">훈련 종료</label><input type="date" id="nd_t" oninput="ndPreview()" onchange="ndPreview()"></div>
+ <div class="fr"><label style="display:flex;align-items:center;gap:8px;color:var(--text);font-size:14px"><input type="checkbox" id="nd_e" checked onchange="ndPreview()" style="width:20px;height:20px">종료일에는 근무 투입</label></div>
+ <div class="hint" id="nd_pv" style="font-size:13.5px">시작일과 종료일을 넣으면 근무 없는 날이 표시돼요.</div>
+ <div class="fr" style="margin-top:12px"><button class="btn pri" onclick="addNd()">훈련 기간 추가</button></div></div>`;
+ const L=S.noDuty||[];
+ h+=`<div class="card"><h3>등록된 훈련</h3>${L.length?`<table class="t"><tr><th>사유</th><th>훈련 기간</th><th>근무 없는 날</th><th>종료일</th><th></th></tr>${L.map((q,i)=>`<tr><td><b>${esc(q.reason)}</b></td><td>${fmt(q.from)} ~ ${fmt(q.to)}</td><td>${fmt(q.from)}${ndLast(q)>q.from?' ~ '+fmt(ndLast(q)):''}</td><td>${q.endDuty&&q.to>q.from?'<span class="tag ex">근무 투입</span>':'<span class="tag ok">근무 없음</span>'}</td><td style="text-align:right">${q.from<S.anchor.date?'<span class="tag ok">🔒 확정</span>':`<button class="btn sm danger" onclick="rmNd(${i})">삭제</button>`}</td></tr>`).join('')}</table>`:'<div class="empty-st">등록된 훈련이 없어요</div>'}
+ <p class="hint">예: 철야훈련 11/17~11/18 → 11/17 근무 없음, 11/18(종료일) 근무 투입. 원래 11/17에 서야 했던 사람이 11/18로 밀려요.</p></div>`;
+ return h;
+}
+
+function pageMe(){const names=Object.keys(S.people).sort((a,b)=>a.localeCompare(b,'ko'));const me=ME();
+ let h=`<div class="card"><h3>내 이름</h3><div class="fr"><select id="me_sel" onchange="setMe(this.value)" style="min-width:160px;font-size:16px"><option value="">(선택하세요)</option>${names.map(n=>`<option ${me===n?'selected':''}>${esc(n)}</option>`).join('')}</select><span class="hint" style="margin:0">${ONLINE?'이 기기에만 저장돼요':'근무표에 내 근무가 주황 테두리로 표시돼요'}</span></div></div>`;
+ if(!me)return h;
+ const days=[];for(let i=0;i<120;i++)days.push(addD(TODAY,i));const C=chainsFor(days);const list=[];
+ days.forEach(d=>{const o=C[d];if(!o)return;['wd','d','n'].forEach(t=>{if(!o[t])return;const ch=o[t];if(ch[ch.length-1]===me)list.push({d,t,sw:ch.length>1?ch[0]:null})})});
+ h+=`<div class="card"><h3>앞으로 120일 · ${list.length}번</h3>${list.length?list.map(x=>{const dd=Math.round((pd(x.d)-pd(TODAY))/864e5);return `<div class="meRow"><span class="dd${dd===0?' t':''}">${dd===0?'오늘':'D-'+dd}</span><b style="font-size:16px">${fmt(x.d)}</b><span class="tag ${x.t==='wd'?'ok':x.t==='d'?'new':'sw'}">${TN[x.t]}</span>${x.sw?`<span class="hint" style="margin:0">${esc(x.sw)} 대신 (교대)</span>`:''}${has(S.holidays,x.d)&&S.holidays[x.d]?`<span class="hint" style="margin:0;color:var(--red)">${esc(S.holidays[x.d])}</span>`:''}</div>`}).join(''):'<div class="empty-st">예정된 근무가 없어요</div>'}</div>`;
+ if(ONLINE)h+=`<div class="card"><h3>이 기기</h3><p class="desc">부대번호를 기억하고 있어요. 공용 휴대폰이면 지워주세요.</p><button class="btn danger" onclick="forgetDevice()">이 기기에서 부대번호 지우기</button></div>`;
+ return h}
+
+/* ================= 온라인(GitHub) 모드: 부대번호 잠금 · 관리자 · 게시 ================= */
+const ITER=250000,te=new TextEncoder(),tdc=new TextDecoder();
+const b64=u=>{u=new Uint8Array(u);let s='';for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s)};
+const ub64=x=>Uint8Array.from(atob(x),c=>c.charCodeAt(0));
+async function pbk(pass){return crypto.subtle.importKey('raw',te.encode(pass),'PBKDF2',false,['deriveKey','deriveBits'])}
+async function kdf(pass,salt){return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:ITER,hash:'SHA-256'},await pbk(pass),{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+async function hashPw(pass,salt){return b64(await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:ITER,hash:'SHA-256'},await pbk(pass),256))}
+async function encWith(key,obj){const iv=crypto.getRandomValues(new Uint8Array(12));return{iv:b64(iv),ct:b64(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,te.encode(JSON.stringify(obj))))}}
+async function decWith(key,f){return JSON.parse(tdc.decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:ub64(f.iv)},key,ub64(f.ct))))}
+const is4=x=>/^\d{4}$/.test(x||'');
+
+function gate(html,wide){const g=$('#gate');g.innerHTML=`<div class="gbox${wide?' wide':''}">${html}</div>`;g.style.display='flex'}
+function gateOff(){$('#gate').style.display='none';$('#gate').innerHTML=''}
+async function fetchRemote(){const r=await fetch('data.enc?t='+Date.now(),{cache:'no-store'});if(r.status===404)return null;if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}
+async function boot(){
+ document.documentElement.dataset.theme=theme();
+ gate('<div class="glogo">📋</div><h1>당직 근무표</h1><p>불러오는 중…</p>');
+ let f;try{f=await fetchRemote()}catch(e){return gate(`<div class="glogo">⚠</div><h1>불러오지 못했어요</h1><p>인터넷 연결을 확인하고 다시 열어주세요.</p><button class="btn pri" onclick="location.reload()">다시 시도</button>`)}
+ if(!f)return showSetup();
+ G.file=f;const saved=lsGet('dutyOnline_unit');
+ if(saved&&await unlock(saved,true))return;
+ showCode();
+}
+function showCode(err){
+ gate(`<div class="glogo">🔒</div><h1>당직 근무표</h1><p>부대번호 4자리를 입력하세요<br><small style="color:var(--faint)">관리자는 부대번호 + 관리자번호 8자리</small></p>
+ <input id="gcode" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off" oninput="this.value=this.value.replace(/\\D/g,'');if(this.value.length===8)gateSubmit()" onkeydown="if(event.key==='Enter')gateSubmit()">
+ <div class="gerr" id="gerr">${err||''}</div>
+ <button class="btn pri" id="gbtn" onclick="gateSubmit()">열기</button>
+ <label class="gchk"><input type="checkbox" id="grem" checked style="width:auto"> 이 기기에서 기억하기</label>`);
+ setTimeout(()=>{const i=$('#gcode');if(i)i.focus()},50);
+}
+async function gateSubmit(){const raw=$('#gcode').value;if(raw.length!==4&&raw.length!==8){$('#gerr').textContent='숫자 4자리(관리자는 8자리)를 입력하세요';return}
+ const v=raw.slice(0,4),ac=raw.length===8?raw.slice(4):null,rem=!$('#grem')||$('#grem').checked;
+ $('#gbtn').disabled=true;$('#gerr').textContent='확인 중…';
+ if(await unlock(v,false)){if(!rem)lsSet('dutyOnline_unit',null);
+  if(ac){if(await checkAdmin(ac)){G.admin=true;G.admCode=ac;sessionStorage.setItem('dutyOnline_adm',ac);restoreDraft();render();toast('관리자 모드')}else note('관리자번호가 맞지 않아 보기 전용으로 열었어요.')}}
+ else{await new Promise(r=>setTimeout(r,700));showCode('부대번호가 맞지 않아요')}}
+async function unlock(code,silent){
+ try{const salt=ub64(G.file.salt),key=await kdf(code,salt);const p=await decWith(key,G.file);
+  Object.assign(G,{unit:code,unitKey:key,salt,adm:p.adm,pub:G.file.pub,unlocked:true});S=p.S;
+  lsSet('dutyOnline_unit',code);
+  const ac=sessionStorage.getItem('dutyOnline_adm');if(ac&&await checkAdmin(ac)){G.admin=true;G.admCode=ac;restoreDraft()}
+  migrate();gateOff();render();return true}
+ catch(e){if(!silent)console.warn(e);return false}}
+function forgetDevice(){lsSet('dutyOnline_unit',null);lsSet('dutyOnline_me',null);sessionStorage.removeItem('dutyOnline_adm');location.reload()}
+async function checkAdmin(code){if(!G.adm||!is4(code))return false;return (await hashPw(G.unit+'#'+code,ub64(G.adm.salt)))===G.adm.hash}
+async function adminBtn(){
+ if(G.admin){if(G.dirty&&!await ask('게시하지 않은 변경이 있어요. 이 기기에 임시로 남겨두고 관리자 모드를 나갈까요?','나가기'))return;
+  G.admin=false;G.admCode=null;sessionStorage.removeItem('dutyOnline_adm');
+  if(G.dirty){G.dirty=false;try{const f=await fetchRemote();if(f){G.file=f;const p=await decWith(G.unitKey,f);S=p.S;G.pub=f.pub;migrate()}}catch(e){}}
+  mode='view';sel=[];render();return toast('보기 전용으로 바뀌었어요')}
+ const v=await modal({msg:'관리자번호 4자리를 입력하세요 (부대번호 뒤 4자리)',input:true,ok:'확인',cancel:'취소'});if(v==null)return;
+ if(!G.adm)return note('아직 관리자번호가 설정되지 않았어요.');if(!await checkAdmin(v.trim())){await new Promise(r=>setTimeout(r,700));return note('관리자번호가 맞지 않아요')}
+ G.admin=true;G.admCode=v.trim();sessionStorage.setItem('dutyOnline_adm',G.admCode);restoreDraft();render();toast('관리자 모드 — 수정 후 [게시]를 눌러주세요')}
+function saveDraft(){lsSet('dutyOnline_draft',JSON.stringify({pub:G.pub,S}))}
+function restoreDraft(){const r=lsGet('dutyOnline_draft');if(!r)return;try{const d=JSON.parse(r);if(d.pub===G.pub){S=d.S;G.dirty=true}else{lsSet('dutyOnline_draft',null);setTimeout(()=>note('다른 곳에서 새로 게시돼서, 이 기기에 남아 있던 게시 안 된 변경은 지웠어요.'),100)}}catch(e){}}
+async function discardDraft(){if(!await ask('게시하지 않은 변경을 모두 버리고 마지막 게시 상태로 돌아갈까요?','버리기'))return;
+ lsSet('dutyOnline_draft',null);G.dirty=false;try{const f=await fetchRemote();if(f){G.file=f;const p=await decWith(G.unitKey,f);S=p.S;G.pub=f.pub;migrate()}}catch(e){}render();toast('변경을 버렸어요')}
+function repoGuess(){const h=location.hostname,o=h.endsWith('.github.io')?h.split('.')[0]:'';const seg=location.pathname.split('/').filter(Boolean)[0];return o?(o+'/'+(seg&&!/\.html?$/.test(seg)?seg:o+'.github.io')):''}
+async function tokKey(salt){return kdf(G.unit+'#'+G.admCode,salt)}
+async function getToken(){const r=lsGet('dutyOnline_tok');if(!r)return null;try{const t=JSON.parse(r);return{tok:await decWith(await tokKey(ub64(t.salt)),t),repo:t.repo}}catch(e){return null}}
+async function setToken(){
+ const repo=await modal({msg:'게시할 GitHub 저장소 (계정/저장소)',input:true,def:(()=>{try{return JSON.parse(lsGet('dutyOnline_tok')).repo}catch(e){return repoGuess()}})(),ok:'다음',cancel:'취소'});if(repo==null)return false;
+ const tok=await modal({msg:'GitHub 토큰을 붙여넣으세요.\n\n① github.com/settings/personal-access-tokens/new\n② Resource owner: 이 저장소의 계정\n③ Repository access: 이 저장소만\n④ Permissions → Contents: Read and write\n⑤ 만들어진 github_pat_… 값을 복사\n\n토큰은 관리자번호로 암호화해서 이 기기에만 저장돼요.',input:true,ok:'저장',cancel:'취소'});if(tok==null||!tok.trim())return false;
+ const t=tok.trim();try{const r=await fetch(`https://api.github.com/repos/${repo.trim()}`,{headers:{Authorization:'Bearer '+t,Accept:'application/vnd.github+json'}});const j=await r.json();if(!r.ok)throw new Error(j.message||r.status);if(!(j.permissions&&j.permissions.push))throw new Error('쓰기 권한이 없어요')}catch(e){await note('토큰 확인 실패: '+e.message+'\n저장소 이름과 토큰 권한(Contents: Read and write)을 확인해주세요.');return false}
+ const salt=crypto.getRandomValues(new Uint8Array(16));const e=await encWith(await tokKey(salt),t);lsSet('dutyOnline_tok',JSON.stringify({salt:b64(salt),...e,repo:repo.trim()}));toast('토큰 저장 완료');return true}
+async function buildFile(){const e=await encWith(G.unitKey,{S,adm:G.adm});return{v:1,pub:new Date().toISOString(),salt:b64(G.salt),...e}}
+async function publish(){if(!G.admin)return;
+ let T=await getToken();if(!T){if(!await ask('이 기기에서 처음 게시하는 거라 GitHub 토큰 등록이 필요해요. 지금 등록할까요?','등록'))return;if(!await setToken())return;T=await getToken()}
+ toast('게시하는 중…');
+ const dir=location.pathname.replace(/[^/]*$/,'').replace(/^\//,''),fp=(T.repo.endsWith('.github.io')?dir:dir.split('/').slice(1).join('/'))+'data.enc';
+ const api=`https://api.github.com/repos/${T.repo}/contents/${fp}`,H={Authorization:'Bearer '+T.tok,Accept:'application/vnd.github+json'};
+ try{let sha=null;const g=await fetch(api+'?t='+Date.now(),{headers:H,cache:'no-store'});
+  if(g.ok){const j=await g.json();sha=j.sha;try{const cur=JSON.parse(atob(j.content.replace(/\n/g,'')));if(G.pub&&cur.pub!==G.pub&&!await ask('다른 기기에서 그 사이에 게시한 내용이 있어요. 지금 내용으로 덮어쓸까요?','덮어쓰기'))return}catch(e){}}
+  else if(g.status!==404){const j=await g.json().catch(()=>({}));throw new Error(j.message||('HTTP '+g.status))}
+  const file=await buildFile();
+  const r=await fetch(api,{method:'PUT',headers:{...H,'Content-Type':'application/json'},body:JSON.stringify({message:'근무표 게시 '+new Date().toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}),content:btoa(JSON.stringify(file)),...(sha?{sha}:{})})});
+  const j=await r.json();if(!r.ok)throw new Error(j.message||('HTTP '+r.status));
+  G.pub=file.pub;G.file=file;G.dirty=false;lsSet('dutyOnline_draft',null);render();note('게시 완료!\n1~2분 안에 모든 사람 화면에 반영돼요.')}
+ catch(e){note('게시 실패: '+e.message+'\n\n인터넷 연결과 토큰을 확인해주세요. 변경 내용은 이 기기에 그대로 남아 있어요.')}}
+async function changeCodes(){
+ const u=await modal({msg:'새 부대번호 4자리 (그대로 쓰려면 지금 번호 입력)',input:true,def:G.unit,ok:'다음',cancel:'취소'});if(u==null)return;if(!is4(u.trim()))return note('숫자 4자리로 입력하세요');
+ const a=await modal({msg:'새 관리자번호 4자리',input:true,ok:'다음',cancel:'취소'});if(a==null)return;if(!is4(a.trim()))return note('숫자 4자리로 입력하세요');
+ const a2=await modal({msg:'관리자번호를 한 번 더 입력하세요',input:true,ok:'변경',cancel:'취소'});if(a2==null)return;if(a2.trim()!==a.trim())return note('관리자번호가 서로 달라요');
+ const old=await getToken();
+ G.salt=crypto.getRandomValues(new Uint8Array(16));G.unitKey=await kdf(u.trim(),G.salt);G.unit=u.trim();
+ const as=crypto.getRandomValues(new Uint8Array(16));G.adm={salt:b64(as),hash:await hashPw(G.unit+'#'+a.trim(),as)};G.admCode=a.trim();
+ sessionStorage.setItem('dutyOnline_adm',G.admCode);lsSet('dutyOnline_unit',G.unit);
+ if(old){const salt=crypto.getRandomValues(new Uint8Array(16));lsSet('dutyOnline_tok',JSON.stringify({salt:b64(salt),...await encWith(await tokKey(salt),old.tok),repo:old.repo}))}
+ G.dirty=true;saveDraft();render();note('번호를 바꿨어요. [게시]를 눌러야 적용돼요.\n게시 후에는 모든 인원이 새 부대번호로 들어와야 해요.')}
+function onlineSetCard(){return `<div class="card"><h3>게시 · 관리자</h3><p class="desc">마지막 게시: ${G.pub?new Date(G.pub).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}):'없음'}${G.dirty?' · <b style="color:var(--amber)">게시 안 된 변경 있음</b>':''}</p>
+ <div class="fr"><button class="btn pri" onclick="publish()">게시</button><button class="btn" onclick="setToken()">GitHub 토큰 등록·변경</button><button class="btn" onclick="changeCodes()">부대번호·관리자번호 변경</button></div>
+ <p class="hint">일반 인원은 부대번호로 보기만 할 수 있어요. 관리자번호를 알아도 GitHub 토큰이 등록된 기기에서만 게시할 수 있어요.</p></div>`}
+function showSetup(){
+ gate(`<div style="text-align:center"><div class="glogo">🛠</div><h1>처음 설정</h1><p>아직 게시된 근무표가 없어요. 관리자가 한 번만 설정하면 돼요.</p></div>
+ <div class="fr"><label>부대 (숫자·이름)</label><input id="su_n" placeholder="숫자" style="max-width:70px"><input id="su_nm" placeholder="부대 이름"></div>
+ <div class="fr"><label>부대번호 4자리</label><input id="su_u" type="password" inputmode="numeric" maxlength="4"></div>
+ <div class="fr"><label>관리자번호 4자리</label><input id="su_a" type="password" inputmode="numeric" maxlength="4"></div>
+ <div class="fr"><label>관리자번호 확인</label><input id="su_a2" type="password" inputmode="numeric" maxlength="4"></div>
+ <div class="fr"><label>근무표 데이터</label><input type="file" id="su_f" accept=".json"></div>
+ <p class="hint">독립망 PC 근무표에서 [백업 저장]한 파일을 고르면 그대로 옮겨져요. 비워두면 빈 근무표로 시작해요.</p>
+ <div class="gerr" id="gerr"></div><button class="btn pri" onclick="setupDone()">설정 완료</button>`,true)}
+async function setupDone(){const u=$('#su_u').value.trim(),a=$('#su_a').value.trim(),a2=$('#su_a2').value.trim();
+ if(!is4(u)||!is4(a))return $('#gerr').textContent='번호는 숫자 4자리로 입력하세요';if(a!==a2)return $('#gerr').textContent='관리자번호가 서로 달라요';
+ let data=blankDefaults();const f=$('#su_f').files[0];
+ if(f){try{const o=JSON.parse(await f.text());if(!o.rot||!o.people)throw 0;data=o}catch(e){return $('#gerr').textContent='올바른 백업 파일이 아니에요'}}
+ data.unitNum=$('#su_n').value.trim()||data.unitNum||'';data.unitName=$('#su_nm').value.trim()||data.unitName||'';data.me='';
+ $('#gerr').textContent='설정 중…';
+ G.salt=crypto.getRandomValues(new Uint8Array(16));G.unitKey=await kdf(u,G.salt);G.unit=u;
+ const as=crypto.getRandomValues(new Uint8Array(16));G.adm={salt:b64(as),hash:await hashPw(u+'#'+a,as)};
+ Object.assign(G,{admCode:a,admin:true,unlocked:true,dirty:true,pub:null});S=data;
+ lsSet('dutyOnline_unit',u);sessionStorage.setItem('dutyOnline_adm',a);migrate();applyPreset();saveDraft();gateOff();render();
+ note('설정 완료! 이제 [게시]를 눌러 GitHub에 올려주세요.\n처음 게시할 때 GitHub 토큰을 한 번 등록해요.')}
+window.addEventListener('beforeunload',e=>{if(ONLINE&&G.dirty){e.preventDefault();e.returnValue=''}});
+
+const PAGES={me:pageMe,nd:pageNd,cal:pageCal,log:pageLog,rot:pageRot,ppl:pagePpl,new:pageNew,hol:pageHol,close:pageClose,stat:pageStat,set:pageSet};
+if(ONLINE){boot()}else{
+migrate();applyPreset();
+if(RESET_NOTE){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+render();
+}
+if(!ONLINE&&RESET_NOTE)note('새 버전으로 바뀌면서 근무표를 종이 근무표(11/4 수정본) 상태로 원위치했어요.\n\n이제 교대는 사람 차례를 따라가요. 철야훈련 등은 [훈련(근무 없음)]에서 다시 넣어주세요.');
+</script>
+</body>
+</html>

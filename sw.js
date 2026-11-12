@@ -6,6 +6,7 @@ self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.
 self.addEventListener('fetch',e=>{
   const u=new URL(e.request.url);
   if(e.request.method!=='GET'||u.origin!==location.origin)return;
+  if(u.pathname.includes('/dangjik/'))return; // 당직 근무표 폴더는 캐시하지 않음
   const fresh=/\/(data|pub|attr)\.js$|\/$|(index|admin|privacy)\.html$/.test(u.pathname);
   if(fresh){
     e.respondWith(fetch(e.request,{cache:'no-store'}).then(r=>{const c=r.clone();caches.open(V).then(x=>x.put(e.request,c));return r;}).catch(()=>caches.match(e.request)));
