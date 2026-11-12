@@ -240,6 +240,23 @@ table.t tr:last-child td{border-bottom:none}
  #bar{left:8px;right:8px;bottom:8px;padding:10px 12px}
  .sheetHint{display:block!important}
 }
+@media(max-width:760px){
+ .sheetWrap{overflow:visible}
+ .sheet{min-width:0;padding:6px 4px;border-radius:8px}
+ .sheet h2{font-size:17px;letter-spacing:2px;margin:2px 0 4px}
+ .meta{font-size:10px;gap:6px;margin-bottom:6px}
+ .hd{font-size:12px;padding:2px 0}
+ .dbar{font-size:12px;padding:1px 0}.dbar .hn{display:block;font-size:8.5px;margin:0;line-height:1.1}
+ .cell{min-height:64px}
+ .slots{padding:2px 1px;gap:3px}
+ .slot{font-size:11px;line-height:1.25;padding:1px 0;letter-spacing:-.04em;word-break:keep-all}
+ .cell.fixed .dbar::after{font-size:7px;right:1px;top:1px}
+ .nd b{font-size:11px}.nd small{font-size:9px}
+ .rotlines{font-size:10.5px;padding:6px;line-height:1.6}
+ .notes{font-size:11px;padding:6px}
+ .ck{font-size:10px;left:1px}
+ .card:has(.sheet){padding:6px}
+}
 @media print{
  @page{size:A4 portrait;margin:8mm}
  html,body{background:#fff}
@@ -466,7 +483,7 @@ const NAV=[['근무',[['cal','근무표'],['me','내 근무'],['log','교대 이
 const TITLE={me:['내 근무','이름을 고르면 앞으로의 내 당직이 보여요'],cal:['근무표','이름을 누르면 체크돼요. 두 개 체크 → 교대, 한 개 체크 → 대근 지정·교대 취소'],log:['교대 이력','교대·대근을 기록 순서대로 보여줘요. [취소]를 누르면 두 근무 모두 원래대로 돌아가요'],rot:['순번 관리','평일 · 주말 주간 · 주말 야간 세 가지 순번을 따로 관리해요'],ppl:['인원·공제·파견','기간을 넣으면 그동안 순번에서 자동으로 빠지고, 끝나면 원래 자리로 복귀해요'],new:['전입자 추가','전입일만 넣으면 평일·주간·야간 첫 투입일을 자동으로 계산해요'],hol:['휴일','휴일을 넣으면 평일·주말 순번이 자동으로 다시 맞춰져요'],nd:['훈련(근무 없음)','훈련 기간엔 당직부관 근무를 비우고 순번을 그대로 밀어요. 종료일부터 다시 근무가 들어가요'],close:['월 마감(확정)','배포한 달을 고정해서 나중에 인원·순번이 바뀌어도 지난 근무가 그대로 남게 해요'],stat:['통계·경고','1인당 근무 횟수와 연속 근무 등 확인이 필요한 항목'],set:['설정·백업','작성자, 비고, 내 이름, 백업']};
 
 const VIEW_PAGES=['cal','me','log','stat'];
-let calView=(window.innerWidth||1200)<=760?'list':'grid';
+let calView='grid';
 function render(){
  document.documentElement.dataset.theme=theme();
  if(!G.unlocked)return;
